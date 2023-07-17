@@ -1,10 +1,10 @@
 {
-  "name": "streetmix",
+  "name": "streetdesignai",
   "version": "1.3.0",
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/streetmix/streetmix.git"
+    "url": "https://github.com/beyondcadteam/streetdesignai.git"
   },
   "license": "AGPL-3.0-or-later",
   "engines": {
@@ -37,7 +37,7 @@
   "jest": {
     "testEnvironment": "jsdom",
     "testEnvironmentOptions": {
-      "url": "https://streetmix.net/"
+      "url": "https://streetdesign.mathis.network/"
     },
     "roots": [
       "app",

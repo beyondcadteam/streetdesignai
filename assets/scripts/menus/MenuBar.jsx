@@ -113,26 +113,26 @@ function MenuBar (props) {
     <nav className="menu-bar">
       <ul className="menu-bar-left" ref={menuBarLeftEl}>
         <li className="menu-bar-title">
-          <img src={logo} alt="Streemix" className="menu-bar-logo" />
-          <h1>Streetmix</h1>
+          <img src={logo} alt="StreetDesign.ai" className="menu-bar-logo" />
+          <h1>StreetDesign.ai</h1>
         </li>
-        <MenuBarItem
+        {/* <MenuBarItem
           label="Help"
           translation="menu.item.help"
           onClick={handleClickMenuButton('help')}
-        />
+        /> */}
         {!offline && (
           <>
-            <MenuBarItem
+            {/* <MenuBarItem
               label="Contact"
               translation="menu.item.contact"
               onClick={handleClickMenuButton('contact')}
-            />
-            <MenuBarItem
+            /> */}
+            {/* <MenuBarItem
               label="Store"
               translation="menu.item.store"
               url="https://cottonbureau.com/people/streetmix"
-            />
+            /> */}
             {!isSubscriber && <UpgradeButton onClick={handleClickUpgrade} />}
           </>
         )}
@@ -144,11 +144,11 @@ function MenuBar (props) {
           url="/new"
           target="_blank"
         />
-        <MenuBarItem
+        {/* <MenuBarItem
           label="Share"
           translation="menu.item.share"
           onClick={handleClickMenuButton('share')}
-        />
+        /> */}
         {enableLocaleSettings && (
           <MenuBarItem
             onClick={handleClickMenuButton('locale')}

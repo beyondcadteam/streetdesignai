@@ -6,12 +6,15 @@ app.listen(process.env.PORT, () => {
   if (process.env.NODE_ENV === 'development') {
     logger.info(
       '[express] ' +
-        chalk.yellowBright.bold('Streetmix is starting! ') +
+        chalk.yellowBright.bold('Street Design AI is starting! ') +
         chalk.whiteBright.bold('Go here in your browser: ') +
         chalk.greenBright.bold(`http://localhost:${process.env.PORT}`)
     )
   } else {
-    logger.info('[express]', chalk.yellow.bold('Streetmix is starting!'))
+    logger.info(
+      '[express]',
+      chalk.yellow.bold('Street Design AI is starting!')
+    )
   }
 
   if (process.env.OFFLINE_MODE === 'true') {

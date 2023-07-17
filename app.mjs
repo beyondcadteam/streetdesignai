@@ -175,7 +175,7 @@ app.use((req, res, next) => {
     height: 522
   }
 
-  res.locals.STREETMIX_TITLE = 'Streetmix'
+  res.locals.STREETMIX_TITLE = 'Street Design AI'
   res.locals.STREETMIX_URL = appURL.href
 
   next()

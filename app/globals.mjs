@@ -1,5 +1,5 @@
 // TODO: Refactor where we set these for ESM
-process.title = 'streetmix'
+process.title = 'streetdesignai'
 
 // Set some defaults for env vars, if not set
 // This must be set after `dotenv` loads

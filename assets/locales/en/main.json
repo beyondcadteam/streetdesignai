@@ -188,7 +188,7 @@
       "text": "Something unexpected happened 😢. We’ve logged the error, but if you can remember what happened on the way here, <a>please tell us about it</a>. This could also be a temporary problem, so please try one more time."
     },
     "welcome": {
-      "heading": "Welcome to Streetmix.",
+      "heading": "Welcome to Street Design AI.",
       "new": {
         "intro": "Design, remix, and share your neighborhood street. Add trees or bike paths, widen sidewalks or traffic lanes, learn how your decisions can impact your community.",
         "instruction": "Start by moving some segments around.",
