@@ -146,7 +146,7 @@ function MenuBar (props) {
         <MenuBarItem
           label="New street"
           translation="menu.item.new-street"
-          url="/new"
+          url={process.env.NEW_STREET_URL || '/new'}
           target="_blank"
         />
         {/* <MenuBarItem
