@@ -2,7 +2,7 @@
   "menu": {
     "item": {
       "help": "Help",
-      "about": "About Streetmix…",
+      "about": "About Street Design AI…",
       "contact": "Contact",
       "community": "Community",
       "contribute": "Contribute",
@@ -210,7 +210,7 @@
       "last": "Start with a copy of last street"
     },
     "about": {
-      "heading": "About Streetmix.",
+      "heading": "About Street Design AI.",
       "description": "Design, remix, and share your street. Add bike paths, widen sidewalks or traffic lanes, learn how all of this can impact your community.",
       "team-heading": "Project team and maintainers",
       "partners": "Partners",

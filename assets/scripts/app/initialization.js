@@ -18,7 +18,7 @@ import store, { observeStore } from '../store'
 import { openGallery } from '../store/actions/gallery'
 import { everythingLoaded } from '../store/slices/app'
 import { detectGeolocation } from '../store/slices/user'
-import { showDialog } from '../store/slices/dialogs'
+// import { showDialog } from '../store/slices/dialogs'
 import { addEventListeners } from './event_listeners'
 import { getMode, MODES, processMode } from './mode'
 import { processUrl } from './page_url'
@@ -185,7 +185,7 @@ function onEverythingLoaded () {
       (welcomeDismissed && canDisplayWhatsNew && locale === 'en') ||
       whatsNewFlag
     ) {
-      store.dispatch(showDialog('WHATS_NEW'))
+      // store.dispatch(showDialog('WHATS_NEW')) // Disabled for now
       window.localStorage[LSKEY_WHATSNEW_LAST_TIMESTAMP] = whatsNewTimestamp
     }
   }

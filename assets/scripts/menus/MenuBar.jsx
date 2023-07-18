@@ -139,6 +139,11 @@ function MenuBar (props) {
       </ul>
       <ul className="menu-bar-right" ref={menuBarRightEl}>
         <MenuBarItem
+          label="Phases"
+          translation="menu.item.phases"
+          onClick={handleClickMenuButton('phases')}
+        />
+        <MenuBarItem
           label="New street"
           translation="menu.item.new-street"
           url="/new"

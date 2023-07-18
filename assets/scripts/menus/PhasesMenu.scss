@@ -1,0 +1,35 @@
+@import "../../styles/variables";
+
+.phases-menu {
+  min-width: 450px;
+  padding: 1rem;
+
+  h1 {
+    color: #121212;
+  }
+
+  .phases-menu-item {
+    display: flex;
+    min-height: 2rem;
+
+    .phases-menu-item-icons {
+      width: 52px;
+      display: flex;
+      align-items: center;
+      justify-items: center;
+
+      .phases-menu-move-item {
+        display: inline-block;
+        width: 16px;
+        margin-inline: 5px;
+        cursor: pointer;
+      }
+    }
+
+    .phases-menu-item-text {
+      margin-left: 1rem;
+      padding: 0.5rem 0;
+      cursor: pointer;
+    }
+  }
+}
