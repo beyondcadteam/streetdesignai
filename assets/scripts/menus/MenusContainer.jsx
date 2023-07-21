@@ -10,7 +10,7 @@ import ContributeMenu from './ContributeMenu'
 import IdentityMenu from './IdentityMenu'
 import LocaleMenu from './LocaleMenu'
 import ShareMenu from './ShareMenu'
-// import PhasesMenu from './PhasesMenu'
+import PhasesMenu from './PhasesMenu'
 import './MenusContainer.scss'
 
 class MenusContainer extends React.PureComponent {
@@ -159,11 +159,11 @@ class MenusContainer extends React.PureComponent {
             menuItemNode={activeMenuItemNode}
             alignOpposite={true}
           />
-          {/* <PhasesMenu
+          <PhasesMenu
             isActive={activeMenu === 'phases'}
             menuItemNode={activeMenuItemNode}
             alignOpposite={true}
-          /> */}
+          />
         </div>
       </>
     )

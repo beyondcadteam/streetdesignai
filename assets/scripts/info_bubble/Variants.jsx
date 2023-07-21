@@ -52,7 +52,7 @@ function Variants (props) {
   })
   const flags = useSelector((state) => state.flags)
   const isSignedIn = useSelector((state) => state.user.signedIn)
-  const isSubscriber = useSelector((state) => state.user.isSubscriber)
+  // const isSubscriber = useSelector((state) => state.user.isSubscriber)
   const dispatch = useDispatch()
   const intl = useIntl()
 
@@ -145,7 +145,7 @@ function Variants (props) {
       defaultMessage: icon.title
     })
 
-    let isLocked = false
+    const isLocked = false
 
     // If there is an enable condition, add a note to the tooltip if it
     // is locked for a reason (e.g. must sign in, must be a subscriber)
@@ -157,28 +157,30 @@ function Variants (props) {
       let unlockConditionText
       switch (icon.unlockCondition) {
         case 'SUBSCRIBE':
-          if (!isSubscriber) {
-            isLocked = true
-            unlockConditionText = intl.formatMessage({
-              id: 'plus.locked.sub',
-              // Default message ends with a Unicode-only left-right order mark
-              // to allow for proper punctuation in `rtl` text direction
-              // This character is hidden from editors by default!
-              defaultMessage: 'Upgrade to Streetmix+ to use!‎'
-            })
-          }
+          // TODO: User functionality is currently disabled in this fork
+          // if (!isSubscriber) {
+          //   isLocked = true
+          //   unlockConditionText = intl.formatMessage({
+          //     id: 'plus.locked.sub',
+          //     // Default message ends with a Unicode-only left-right order mark
+          //     // to allow for proper punctuation in `rtl` text direction
+          //     // This character is hidden from editors by default!
+          //     defaultMessage: 'Upgrade to Streetmix+ to use!‎'
+          //   })
+          // }
           break
         case 'SIGN_IN':
         default:
           if (!isSignedIn) {
-            isLocked = true
-            unlockConditionText = intl.formatMessage({
-              id: 'plus.locked.user',
-              // Default message ends with a Unicode-only left-right order mark
-              // to allow for proper punctuation in `rtl` text direction
-              // This character is hidden from editors by default!
-              defaultMessage: 'Sign in to use!‎'
-            })
+            // TODO: User functionality is currently disabled in this fork
+            // isLocked = true
+            // unlockConditionText = intl.formatMessage({
+            //   id: 'plus.locked.user',
+            //   // Default message ends with a Unicode-only left-right order mark
+            //   // to allow for proper punctuation in `rtl` text direction
+            //   // This character is hidden from editors by default!
+            //   defaultMessage: 'Sign in to use!‎'
+            // })
           }
           break
       }

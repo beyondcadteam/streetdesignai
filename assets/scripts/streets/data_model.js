@@ -390,7 +390,7 @@ export function setIgnoreStreetChanges (value) {
   ignoreStreetChanges = value
 }
 
-export function saveStreetToServerIfNecessary () {
+export function saveStreetToServerIfNecessary (force = false) {
   if (ignoreStreetChanges || store.getState().errors.abortEverything) {
     return
   }
@@ -398,7 +398,7 @@ export function saveStreetToServerIfNecessary () {
   const street = store.getState().street
   const currentData = trimStreetData(street)
 
-  if (JSON.stringify(currentData) !== JSON.stringify(_lastStreet)) {
+  if (force || JSON.stringify(currentData) !== JSON.stringify(_lastStreet)) {
     if (street.editCount !== null) {
       store.dispatch(updateEditCount(street.editCount + 1))
     }
@@ -436,6 +436,7 @@ export function trimStreetData (street) {
     rightBuildingHeight: street.rightBuildingHeight,
     leftBuildingVariant: street.leftBuildingVariant,
     rightBuildingVariant: street.rightBuildingVariant,
+    phases: street.phases,
     segments: street.segments.map((origSegment) => {
       const segment = {
         id: origSegment.id,

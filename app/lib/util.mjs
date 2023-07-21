@@ -5,6 +5,7 @@ export function asStreetJson (street) {
     name: street.name,
     clientUpdatedAt: street.clientUpdatedAt,
     data: street.data,
+    phases: street.phases,
     createdAt: street.createdAt,
     updatedAt: street.updatedAt,
     originalStreetId: street.originalStreetId

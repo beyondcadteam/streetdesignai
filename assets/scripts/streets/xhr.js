@@ -271,6 +271,7 @@ function unpackStreetDataFromServerTransmission (transmission) {
   street.clientUpdatedAt = transmission.clientUpdatedAt || null
   street.name = transmission.name || null
   street.location = transmission.data.street.location || null
+  street.phases = transmission.phases
 
   // FIXME just read it and do 0 otherwise
   if (typeof transmission.data.street.editCount === 'undefined') {
@@ -340,6 +341,7 @@ export function packServerStreetDataRaw () {
   delete data.street.originalStreetId
   delete data.street.updatedAt
   delete data.street.clientUpdatedAt
+  delete data.street.phases
 
   // This will be implied through authorization header
   delete data.street.creatorId
@@ -354,6 +356,10 @@ export function packServerStreetDataRaw () {
     name: street.name,
     originalStreetId: street.originalStreetId,
     data,
+    phases: street.phases?.map((phase) => ({
+      ...phase,
+      street: { ...phase.street, phases: null }
+    })),
     clientUpdatedAt: street.clientUpdatedAt
   }
 

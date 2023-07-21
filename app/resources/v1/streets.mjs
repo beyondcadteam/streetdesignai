@@ -30,6 +30,7 @@ export async function post (req, res) {
     street.name = body.name
     street.clientUpdatedAt = body.clientUpdatedAt
     street.data = body.data
+    street.phases = body.phases
     street.creatorIp = requestIp(req)
   }
 
@@ -488,8 +489,10 @@ export async function put (req, res) {
   } // END function - handleErrors
 
   async function updateStreetData (street) {
+    console.log({ street })
     street.name = body.name || street.name
     street.data = body.data || street.data
+    street.phases = body.phases || street.phases
     street.clientUpdatedAt =
       body.clientUpdatedAt || street.clientUpdatedAt || ''
 

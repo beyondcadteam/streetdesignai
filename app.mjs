@@ -145,7 +145,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(helmet(helmetConfig))
-app.use(express.json())
+app.use(express.json({ limit: process.env.JSON_SIZE_LIMIT || '10mb' }))
 app.use(compression())
 app.use(cookieParser())
 app.use(

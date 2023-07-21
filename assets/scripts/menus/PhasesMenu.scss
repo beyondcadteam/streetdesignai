@@ -13,12 +13,13 @@
     min-height: 2rem;
 
     .phases-menu-item-icons {
-      width: 52px;
       display: flex;
       align-items: center;
       justify-items: center;
 
-      .phases-menu-move-item {
+      .phases-menu-move-item,
+      .phases-menu-delete-item,
+      .phases-menu-edit-item {
         display: inline-block;
         width: 16px;
         margin-inline: 5px;
@@ -30,6 +31,8 @@
       margin-left: 1rem;
       padding: 0.5rem 0;
       cursor: pointer;
+      flex-grow: 1;
+      text-align: right;
     }
   }
 }
