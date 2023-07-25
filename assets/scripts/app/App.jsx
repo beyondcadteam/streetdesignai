@@ -38,6 +38,18 @@ function App () {
 
   // TODO: Move other initialization methods here.
   useEffect(() => {
+    const url =
+      window.location !== window.parent.location
+        ? document.referrer
+        : document.location.href
+    const urlParams = new URLSearchParams(
+      url.split('?')?.[1] || window.location.search
+    )
+    if (urlParams.has('newStreet')) {
+      window.location.href = '/new'
+      return
+    }
+
     const init = async () => {
       // Initialize feature flags
       await dispatch(getInitialFlags())
