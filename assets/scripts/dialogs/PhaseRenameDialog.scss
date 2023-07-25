@@ -1,0 +1,37 @@
+@use "sass:color";
+@import "../../styles/variables";
+
+.phaseRename-dialog {
+  min-width: 400px;
+  max-width: 520px;
+}
+
+.phaseRename-dialog label {
+  display: block;
+  font-weight: 700;
+  font-size: 1.2em;
+  margin-bottom: 0.25em;
+}
+
+.phaseRename-dialog form {
+  margin-top: 1.5em;
+}
+
+.phaseRename-dialog input {
+  display: block;
+
+  /* Reusing styles from .sign-in-input */
+  border-radius: 3px;
+  padding: 0.75em;
+  width: 100%;
+  border: $button-border;
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 7%);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s;
+
+  &:focus {
+    border-color: $colour-turquoise-425;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgb(0 0 0 / 7%),
+      0 0 8px color.adjust($colour-turquoise-450, $alpha: -0.1);
+  }
+}

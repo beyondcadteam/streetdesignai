@@ -17,6 +17,7 @@ import Icon from '../ui/Icon'
 // import { showDialog } from '../store/slices/dialogs'
 import { updateStreetData } from '../store/slices/street'
 import { setAppFlags } from '../store/slices/app'
+import { showDialog } from '../store/slices/dialogs'
 import Menu from './Menu'
 import './PhasesMenu.scss'
 
@@ -33,7 +34,7 @@ function PhasesMenu (props) {
       setPhases(street.phases)
       dispatch(setAppFlags({ activePhase: street.phases[0] }))
       const newStreet = { ...street.phases[0].street }
-      console.log({ newStreet })
+
       setTimeout(
         () =>
           dispatch(updateStreetData({ ...newStreet, phases: street.phases })),
@@ -104,7 +105,9 @@ function PhasesMenu (props) {
     newItems[index] = newItems[index - 1]
     newItems[index - 1] = item
     dispatch(updateStreetData({ phases: newItems }))
-    if (app.activePhase === index) { dispatch(setAppFlags({ activePhase: street.phases[index - 1] })) }
+    if (app.activePhase === index) {
+      dispatch(setAppFlags({ activePhase: street.phases[index - 1] }))
+    }
   }
 
   function moveDown (index) {
@@ -113,7 +116,9 @@ function PhasesMenu (props) {
     newItems[index] = newItems[index + 1]
     newItems[index + 1] = item
     dispatch(updateStreetData({ phases: newItems }))
-    if (app.activePhase === index) { dispatch(setAppFlags({ activePhase: street.phases[index + 1] })) }
+    if (app.activePhase === index) {
+      dispatch(setAppFlags({ activePhase: street.phases[index + 1] }))
+    }
   }
 
   function addPhase () {
@@ -144,17 +149,25 @@ function PhasesMenu (props) {
     const newItems = [...street.phases]
     newItems.splice(index, 1)
     dispatch(updateStreetData({ phases: newItems }))
-    if (app.activePhase === index) { dispatch(setAppFlags({ activePhase: newItems[index - 1] })) }
+    if (app.activePhase === index) {
+      dispatch(setAppFlags({ activePhase: newItems[index - 1] }))
+    }
   }
 
   function editPhase (index) {
     const newItems = [...street.phases]
     const item = newItems[index]
-    const newName = window.prompt('Enter a new name for this phase', item.name)
-    if (!newName) return
-    newItems[index] = { ...item, name: newName }
-    dispatch(setAppFlags({ activePhase: newItems[index] }))
-    dispatch(updateStreetData({ phases: [...newItems] }))
+    // const newName = window.prompt('Enter a new name for this phase', item.name)
+    // if (!newName) return
+    // newItems[index] = { ...item, name: newName }
+    // dispatch(setAppFlags({ activePhase: newItems[index] }))
+    // dispatch(updateStreetData({ phases: [...newItems] }))
+
+    dispatch(setAppFlags({ dialogData: { phaseName: item.name } }))
+    dispatch(showDialog('PHASE_RENAME'))
+    setTimeout(() => {
+      document.querySelector('#phase-new-name').focus()
+    }, 50)
   }
 
   function selectPhase (index) {
@@ -175,7 +188,9 @@ function PhasesMenu (props) {
         <span style={{ marginRight: '1rem' }}>
           <StackIcon size={24} />
         </span>
-        <h1 style={{ margin: 0, display: 'inline' }}>Phases</h1>
+        <h1 style={{ margin: 0, display: 'inline', userSelect: 'none' }}>
+          Phases
+        </h1>
         <span
           title={intl.formatMessage({
             id: 'phases.addPhase',

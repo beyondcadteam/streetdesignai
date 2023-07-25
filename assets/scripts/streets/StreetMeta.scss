@@ -75,3 +75,33 @@ body.dark-environs-invert-ui {
     color: #b0b0b0;
   }
 }
+
+.street-metadata-phases {
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  padding-top: 0.75em;
+  color: black;
+  user-select: none;
+  max-width: 580px;
+  pointer-events: auto;
+
+  div {
+    display: flex;
+    flex: 1 0 calc(25% - 1rem);
+    justify-content: center;
+    align-items: center;
+    min-width: calc(25% - 1rem);
+    max-width: calc(25% - 1rem);
+    background-color: rgba(50, 50, 50, 0.4);
+    color: white;
+    padding: 0.25em 1.25em;
+    cursor: pointer;
+
+    &.selected {
+      background-color: rgba(50, 50, 50, 0.8);
+    }
+  }
+}
