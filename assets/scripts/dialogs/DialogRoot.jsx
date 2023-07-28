@@ -15,6 +15,7 @@ import NewsletterDialog from './NewsletterDialog'
 import UpgradeDialog from './UpgradeDialog'
 import SentimentSurveyDialog from './SentimentSurveyDialog'
 import PhaseRenameDialog from './PhaseRenameDialog'
+import PhaseImportDialog from './PhaseImportDialog'
 import ErrorDialog from './ErrorDialog'
 
 const DIALOG_COMPONENTS = {
@@ -29,7 +30,8 @@ const DIALOG_COMPONENTS = {
   NEWSLETTER: NewsletterDialog,
   UPGRADE: UpgradeDialog,
   SENTIMENT_SURVEY: SentimentSurveyDialog,
-  PHASE_RENAME: PhaseRenameDialog
+  PHASE_RENAME: PhaseRenameDialog,
+  PHASE_IMPORT: PhaseImportDialog
 }
 
 function DialogRoot (props) {

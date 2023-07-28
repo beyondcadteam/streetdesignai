@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useIntl } from 'react-intl'
 import {
+  LinkIcon,
   PencilIcon,
   PlusIcon,
   StackIcon,
@@ -182,6 +183,13 @@ function PhasesMenu (props) {
     dispatch(updateStreetData({ ...phase.street, phases: clonedPhases }))
   }
 
+  function importPhase () {
+    dispatch(showDialog('PHASE_IMPORT'))
+    setTimeout(() => {
+      document.querySelector('#phase-new-link').focus()
+    }, 50)
+  }
+
   return (
     <Menu {...props}>
       <div className="phases-menu">
@@ -208,6 +216,25 @@ function PhasesMenu (props) {
         >
           <PlusIcon size={24} />
         </span>
+
+        <span
+          title={intl.formatMessage({
+            id: 'phases.importPhase',
+            defaultMessage: 'Import Phase'
+          })}
+          onClick={importPhase}
+          style={{
+            display:
+              street?.phases?.length === Number(process.env.PHASE_LIMIT || '8')
+                ? 'none'
+                : 'inline',
+            cursor: 'pointer',
+            marginLeft: '1rem'
+          }}
+        >
+          <LinkIcon size={20} />
+        </span>
+
         <hr />
 
         {street?.phases?.map((item, index) => (
