@@ -115,6 +115,9 @@ const csp = {
       '*.stripe.com'
     ],
     fontSrc: ["'self'", 'fonts.gstatic.com'],
+    frameAncestors: process.env.FRAME_ANCESTORS
+      ? JSON.parse(process.env.FRAME_ANCESTORS)
+      : ["'self'"],
     connectSrc: [
       "'self'",
       process.env.PELIAS_HOST_NAME,
