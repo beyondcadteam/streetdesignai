@@ -1,10 +1,11 @@
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useForm } from 'react-hook-form'
-// import { useDispatch, useSelector } from 'react-redux'
+import { v4 as uuidv4 } from 'uuid'
+import { useDispatch, useSelector } from 'react-redux'
 
-// import { setAppFlags } from '../store/slices/app'
-// import { updateStreetData } from '../store/slices/street'
+import { setAppFlags } from '../store/slices/app'
+import { updateStreetData } from '../store/slices/street'
 import Button from '../ui/Button'
 import Dialog from './Dialog'
 import './PhaseImportDialog.scss'
@@ -14,19 +15,66 @@ const PhaseImportDialog = (props) => {
     shouldUseNativeValidation: true
   })
 
-  // const dispatch = useDispatch()
-  // const street = useSelector((state) => state.street)
+  const dispatch = useDispatch()
+  const street = useSelector((state) => state.street)
   // const { dialogData } = useSelector((state) => state.app)
 
   const onSubmit = async ({ link }, closeDialog) => {
-    // parse link to url
-    const url = new URL(link)
-    const streetNamespace = url.pathname.split('/')[2]
-    const apiUrl = `${url.origin}/api/v1/streets?namespacedId=${streetNamespace}`
-    const result = await fetch(apiUrl)
-    const data = await result.json()
-    console.log({ data })
-    // closeDialog()
+    try {
+      const url = new URL(link)
+      const streetNamespace = url.pathname.split('/')[2]
+      const apiUrl = `${url.origin}/api/v1/streets?namespacedId=${streetNamespace}`
+      const result = await fetch(apiUrl)
+      const data = await result.json()
+
+      const { name } = data
+
+      const {
+        environment,
+        leftBuildingHeight,
+        leftBuildingVariant,
+        location,
+        rightBuildingHeight,
+        rightBuildingVariant,
+        schemaVersion,
+        segments,
+        showAnalytics,
+        units,
+        width
+      } = data.data.street
+
+      const newPhase = {
+        id: uuidv4(),
+        name: name || `Imported Phase (${streetNamespace})`,
+        street: {
+          environment,
+          leftBuildingHeight,
+          leftBuildingVariant,
+          location,
+          rightBuildingHeight,
+          rightBuildingVariant,
+          schemaVersion,
+          segments,
+          showAnalytics,
+          units,
+          width
+        }
+      }
+
+      console.log({ street, newPhase })
+      const cleanPhases = street.phases.map((phase) => ({
+        ...phase,
+        street: { ...phase.street, phases: null }
+      }))
+      const newPhases = [...cleanPhases, newPhase]
+
+      dispatch(updateStreetData({ ...newPhase.street, phases: newPhases }))
+      dispatch(setAppFlags({ activePhase: newPhase }))
+      closeDialog()
+    } catch (error) {
+      console.error(error)
+      window.alert('Error importing phase')
+    }
   }
 
   return (
