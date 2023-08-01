@@ -17,7 +17,6 @@ const PhaseImportDialog = (props) => {
 
   const dispatch = useDispatch()
   const street = useSelector((state) => state.street)
-  // const { dialogData } = useSelector((state) => state.app)
 
   const onSubmit = async ({ link }, closeDialog) => {
     try {
@@ -26,6 +25,7 @@ const PhaseImportDialog = (props) => {
       const apiUrl = `${url.origin}/api/v1/streets?namespacedId=${streetNamespace}`
       const result = await fetch(apiUrl)
       const data = await result.json()
+      console.log(url.host + ' response:', { data })
 
       const { name } = data
 
@@ -47,6 +47,7 @@ const PhaseImportDialog = (props) => {
         id: uuidv4(),
         name: name || `Imported Phase (${streetNamespace})`,
         street: {
+          namespacedId: street.namespacedId,
           environment,
           leftBuildingHeight,
           leftBuildingVariant,
@@ -61,11 +62,11 @@ const PhaseImportDialog = (props) => {
         }
       }
 
-      console.log({ street, newPhase })
       const cleanPhases = street.phases.map((phase) => ({
         ...phase,
         street: { ...phase.street, phases: null }
       }))
+
       const newPhases = [...cleanPhases, newPhase]
 
       dispatch(updateStreetData({ ...newPhase.street, phases: newPhases }))

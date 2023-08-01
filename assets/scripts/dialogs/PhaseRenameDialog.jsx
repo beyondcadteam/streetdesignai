@@ -21,17 +21,12 @@ const PhaseRenameDialog = (props) => {
   const onSubmit = ({ name }, closeDialog) => {
     let newItems = [...street.phases]
 
-    const phaseIndex = newItems.findIndex(
-      (p) => p.name === dialogData.phaseName
-    )
     newItems = newItems.map((p) => {
-      if (p.name === dialogData.phaseName) return { ...p, name }
+      if (p.id === dialogData.phaseId) return { ...p, name }
       return p
     })
 
-    dispatch(
-      setAppFlags({ activePhase: newItems[phaseIndex], dialogData: null })
-    )
+    dispatch(setAppFlags({ dialogData: null }))
     dispatch(updateStreetData({ phases: newItems }))
     closeDialog()
   }

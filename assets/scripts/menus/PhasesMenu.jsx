@@ -31,16 +31,30 @@ function PhasesMenu (props) {
   const [phases, setPhases] = useState()
 
   useEffect(() => {
+    window.street = street
+    window.phase = app.activePhase
+  }, [app.activePhase, street])
+
+  useEffect(() => {
+    if (street?.phases?.length > 0) {
+      const newStreet = { ...street.phases[0].street }
+      dispatch(updateStreetData({ ...newStreet, phases: street.phases }))
+      dispatch(setAppFlags({ activePhase: street.phases[0] }))
+    }
+  }, []) // eslint-disable-line
+
+  useEffect(() => {
     if (!phases && street.phases) {
       setPhases(street.phases)
       dispatch(setAppFlags({ activePhase: street.phases[0] }))
       const newStreet = { ...street.phases[0].street }
 
-      setTimeout(
-        () =>
-          dispatch(updateStreetData({ ...newStreet, phases: street.phases })),
-        250
-      )
+      console.log({ app, street, newStreet })
+
+      setTimeout(() => {
+        dispatch(updateStreetData({ ...newStreet, phases: street.phases }))
+      }, 250)
+
       return
     }
 
@@ -164,7 +178,9 @@ function PhasesMenu (props) {
     // dispatch(setAppFlags({ activePhase: newItems[index] }))
     // dispatch(updateStreetData({ phases: [...newItems] }))
 
-    dispatch(setAppFlags({ dialogData: { phaseName: item.name } }))
+    dispatch(
+      setAppFlags({ dialogData: { phaseId: item.id, phaseName: item.name } })
+    )
     dispatch(showDialog('PHASE_RENAME'))
     setTimeout(() => {
       document.querySelector('#phase-new-name').focus()
