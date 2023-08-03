@@ -46,7 +46,10 @@ function App () {
       setLoading(false)
     }
 
-    if (process.env.FRAME_DOMAIN) document.domain = process.env.FRAME_DOMAIN
+    window.addEventListener('message', (e) => {
+      const { data, origin } = e
+      console.log('message received', { data, origin })
+    })
 
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps

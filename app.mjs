@@ -171,9 +171,6 @@ app.use((req, res, next) => {
     // Currently: we use none
   }
 
-  // Allow iframe embedding and access
-  if (process.env.FRAME_DOMAIN) res.set('Origin-Agent-Cluster', '?0')
-
   // Set default metatag information for social sharing cards
   res.locals.STREETMIX_IMAGE = {
     image: 'https://streetmix.net/images/thumbnail.png',
