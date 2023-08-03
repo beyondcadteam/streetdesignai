@@ -45,6 +45,9 @@ function App () {
       // Turn off loading after initial loading is done
       setLoading(false)
     }
+
+    if (process.env.FRAME_DOMAIN) document.domain = process.env.FRAME_DOMAIN
+
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

@@ -101,6 +101,9 @@ const csp = {
     workerSrc: ["'self'"],
     childSrc: ['platform.twitter.com'],
     frameSrc: ["'self'", 'streetmix.github.io', 'checkout.stripe.com'],
+    frameAncestors: process.env.FRAME_ANCESTORS
+      ? JSON.parse(process.env.FRAME_ANCESTORS)
+      : ["'self'"],
     imgSrc: [
       "'self'",
       'data:',
@@ -115,9 +118,6 @@ const csp = {
       '*.stripe.com'
     ],
     fontSrc: ["'self'", 'fonts.gstatic.com'],
-    frameAncestors: process.env.FRAME_ANCESTORS
-      ? JSON.parse(process.env.FRAME_ANCESTORS)
-      : ["'self'"],
     connectSrc: [
       "'self'",
       process.env.PELIAS_HOST_NAME,
@@ -170,6 +170,9 @@ app.use((req, res, next) => {
   res.locals.nonce = {
     // Currently: we use none
   }
+
+  // Allow iframe embedding and access
+  if (process.env.FRAME_DOMAIN) res.set('Origin-Agent-Cluster', '?0')
 
   // Set default metatag information for social sharing cards
   res.locals.STREETMIX_IMAGE = {
