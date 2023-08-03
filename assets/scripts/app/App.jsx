@@ -47,8 +47,8 @@ function App () {
     }
 
     window.addEventListener('message', (e) => {
-      const { data, origin } = e
-      console.log('message received', { data, origin })
+      if (e.data !== 'get-url') return
+      parent.postMessage({ url: window.location.href }, '*')
     })
 
     init()
