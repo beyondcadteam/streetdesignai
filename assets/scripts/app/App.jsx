@@ -16,7 +16,7 @@ import Gallery from '../gallery/Gallery'
 import SegmentDragLayer from '../segments/SegmentDragLayer'
 import DebugHoverPolygon from '../info_bubble/DebugHoverPolygon'
 import ToastContainer from '../ui/Toasts/ToastContainer'
-import SentimentSurveyContainer from '../sentiment/SentimentSurveyContainer'
+// import SentimentSurveyContainer from '../sentiment/SentimentSurveyContainer'
 import { getInitialFlags } from '../store/slices/flags'
 import DebugInfo from './DebugInfo'
 import BlockingShield from './BlockingShield'
@@ -102,7 +102,7 @@ function App () {
                 <SegmentDragLayer />
                 <StreetView />
                 <ToastContainer />
-                <SentimentSurveyContainer />
+                {/* <SentimentSurveyContainer /> */}
               </div>
             </DndProvider>
           </IntlProvider>

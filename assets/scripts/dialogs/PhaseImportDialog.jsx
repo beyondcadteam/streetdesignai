@@ -18,6 +18,33 @@ const PhaseImportDialog = (props) => {
   const dispatch = useDispatch()
   const street = useSelector((state) => state.street)
 
+  const compatibilityUpgrade = (segments) => {
+    const upgrade = (segment) => {
+      let variantString
+
+      switch (segment.type) {
+        case 'bus-lane':
+          if (variantString?.split('|').length === 2) { variantString = variantString + '|typical' }
+          break
+        case 'bike-lane':
+          if (variantString?.includes('colored')) { variantString = variantString.replace('colored', 'green') }
+          if (variantString?.split('|').length === 2) { variantString = variantString + '|road' }
+          break
+        default:
+          variantString = segment.variantString
+      }
+
+      return {
+        ...segment,
+        variantString,
+        id: segment.id || uuidv4(),
+        elevation: segment.elevation || 1
+      }
+    }
+
+    return segments.map(upgrade)
+  }
+
   const onSubmit = async ({ link }, closeDialog) => {
     try {
       const url = new URL(link)
@@ -48,14 +75,14 @@ const PhaseImportDialog = (props) => {
         name: name || `Imported Phase (${streetNamespace})`,
         street: {
           namespacedId: street.namespacedId,
-          environment,
+          environment: environment || 'day',
           leftBuildingHeight,
           leftBuildingVariant,
           location,
           rightBuildingHeight,
           rightBuildingVariant,
           schemaVersion,
-          segments,
+          segments: compatibilityUpgrade(segments),
           showAnalytics,
           units,
           width
