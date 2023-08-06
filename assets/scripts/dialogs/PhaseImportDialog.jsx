@@ -20,18 +20,20 @@ const PhaseImportDialog = (props) => {
 
   const compatibilityUpgrade = (segments) => {
     const upgrade = (segment) => {
-      let variantString
+      let variantString = segment.variantString
 
       switch (segment.type) {
         case 'bus-lane':
-          if (variantString?.split('|').length === 2) { variantString = variantString + '|typical' }
+          if (variantString?.split('|').length === 2) { variantString += '|typical' }
           break
         case 'bike-lane':
-          if (variantString?.includes('colored')) { variantString = variantString.replace('colored', 'green') }
-          if (variantString?.split('|').length === 2) { variantString = variantString + '|road' }
+          if (variantString?.includes('colored')) {
+            variantString = variantString.replace('colored', 'green')
+          }
+          if (variantString?.split('|').length === 2) {
+            variantString = variantString + '|road'
+          }
           break
-        default:
-          variantString = segment.variantString
       }
 
       return {
