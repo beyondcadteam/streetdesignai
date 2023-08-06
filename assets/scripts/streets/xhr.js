@@ -111,7 +111,7 @@ export async function fetchStreetFromServer () {
 }
 
 function errorReceiveStreet (error) {
-  const data = error.response.data
+  const data = error?.response?.data
   const mode = getMode()
   if (
     mode === MODES.CONTINUE ||
@@ -120,7 +120,7 @@ function errorReceiveStreet (error) {
   ) {
     goNewStreet()
   } else {
-    if (data.status === 404 || data.status === 410) {
+    if (data?.status === 404 || data?.status === 410) {
       if (store.getState().street.creatorId) {
         if (data.status === 410) {
           setMode(MODES.STREET_410_BUT_LINK_TO_USER)
