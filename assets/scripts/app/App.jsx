@@ -47,7 +47,7 @@ function App () {
     }
 
     window.addEventListener('message', (e) => {
-      if (e.data !== 'get-url') return
+      if (e?.data !== 'get-url') return
       parent.postMessage({ url: window.location.href }, '*')
     })
 
