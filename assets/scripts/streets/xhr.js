@@ -363,6 +363,8 @@ export function packServerStreetDataRaw () {
     clientUpdatedAt: street.clientUpdatedAt
   }
 
+  // console.log({ transmission }, street.phases)
+
   return transmission
 }
 

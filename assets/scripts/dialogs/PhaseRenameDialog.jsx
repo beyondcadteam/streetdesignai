@@ -19,15 +19,18 @@ const PhaseRenameDialog = (props) => {
   const { dialogData } = useSelector((state) => state.app)
 
   const onSubmit = ({ name }, closeDialog) => {
-    let newItems = [...street.phases]
+    const newItems = [...street.phases]
 
-    newItems = newItems.map((p) => {
+    const phases = newItems.map((p) => {
       if (p.id === dialogData.phaseId) return { ...p, name }
       return p
     })
 
-    dispatch(setAppFlags({ dialogData: null }))
-    dispatch(updateStreetData({ phases: newItems }))
+    const activePhase = phases.find((p) => p.id === dialogData.phaseId)
+    dispatch(
+      setAppFlags({ dialogData: null, activePhase: { ...activePhase, name } })
+    )
+    dispatch(updateStreetData({ phases })) // TODO: Make reducer for phases
     closeDialog()
   }
 

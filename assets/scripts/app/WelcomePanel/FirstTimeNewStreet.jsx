@@ -7,7 +7,7 @@ function FirstTimeNewStreet (props) {
       <h1>
         <FormattedMessage
           id="dialogs.welcome.heading"
-          defaultMessage="Welcome to Streetmix."
+          defaultMessage="Welcome to Street Design AI."
         />
       </h1>
       <p>

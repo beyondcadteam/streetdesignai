@@ -28,7 +28,7 @@ function Loading ({ isLoading = true }) {
   // will benefit from using it.
   return (
     <div id="loading" className={isLoading ? '' : 'hidden'} hidden={!isLoading}>
-      <div className="streetmix-logo" />
+      <div className="streetdesignai-logo" />
       <div className="loading-spinner" />
       <div
         ref={loadingStuckNotice}

@@ -4,6 +4,10 @@ import { useForm } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 import { useDispatch, useSelector } from 'react-redux'
 
+import {
+  calculateOccupiedWidth,
+  calculateRemainingWidth
+} from '../streets/width'
 import { setAppFlags } from '../store/slices/app'
 import { updateStreetData } from '../store/slices/street'
 import Button from '../ui/Button'
@@ -24,7 +28,9 @@ const PhaseImportDialog = (props) => {
 
       switch (segment.type) {
         case 'bus-lane':
-          if (variantString?.split('|').length === 2) { variantString += '|typical' }
+          if (variantString?.split('|').length === 2) {
+            variantString += '|typical'
+          }
           break
         case 'bike-lane':
           if (variantString?.includes('colored')) {
@@ -72,12 +78,18 @@ const PhaseImportDialog = (props) => {
         width
       } = data.data.street
 
+      const occupiedWidth = calculateOccupiedWidth(segments)
+      const remainingWidth = calculateRemainingWidth(width, occupiedWidth)
+
       const newPhase = {
         id: uuidv4(),
         name: name || `Imported Phase (${streetNamespace})`,
         street: {
+          name: street.name || name,
           namespacedId: street.namespacedId,
           environment: environment || 'day',
+          remainingWidth,
+          occupiedWidth,
           leftBuildingHeight,
           leftBuildingVariant,
           location,

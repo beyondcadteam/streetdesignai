@@ -489,7 +489,6 @@ export async function put (req, res) {
   } // END function - handleErrors
 
   async function updateStreetData (street) {
-    console.log({ street })
     street.name = body.name || street.name
     street.data = body.data || street.data
     street.phases = body.phases || street.phases

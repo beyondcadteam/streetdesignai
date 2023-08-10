@@ -45,14 +45,17 @@ function Variants (props) {
       return state.street.segments[position].variantString
     }
   })
+
+  const unlocked = process.env.UNLOCK_ALL_VARIANTS === 'true'
   const segment = useSelector((state) => {
     if (Number.isInteger(position) && state.street.segments[position]) {
       return state.street.segments[position]
     }
   })
+
   const flags = useSelector((state) => state.flags)
   const isSignedIn = useSelector((state) => state.user.signedIn)
-  // const isSubscriber = useSelector((state) => state.user.isSubscriber)
+  const isSubscriber = useSelector((state) => state.user.isSubscriber)
   const dispatch = useDispatch()
   const intl = useIntl()
 
@@ -145,42 +148,41 @@ function Variants (props) {
       defaultMessage: icon.title
     })
 
-    const isLocked = false
+    let isLocked = false
 
     // If there is an enable condition, add a note to the tooltip if it
     // is locked for a reason (e.g. must sign in, must be a subscriber)
     // If an "unlock flag" is set, enable the thing
     if (
+      !unlocked &&
       icon.unlockCondition &&
       !(icon.unlockWithFlag && flags[icon.unlockWithFlag]?.value === true)
     ) {
       let unlockConditionText
       switch (icon.unlockCondition) {
         case 'SUBSCRIBE':
-          // TODO: User functionality is currently disabled in this fork
-          // if (!isSubscriber) {
-          //   isLocked = true
-          //   unlockConditionText = intl.formatMessage({
-          //     id: 'plus.locked.sub',
-          //     // Default message ends with a Unicode-only left-right order mark
-          //     // to allow for proper punctuation in `rtl` text direction
-          //     // This character is hidden from editors by default!
-          //     defaultMessage: 'Upgrade to Streetmix+ to use!‎'
-          //   })
-          // }
+          if (!isSubscriber) {
+            isLocked = true
+            unlockConditionText = intl.formatMessage({
+              id: 'plus.locked.sub',
+              // Default message ends with a Unicode-only left-right order mark
+              // to allow for proper punctuation in `rtl` text direction
+              // This character is hidden from editors by default!
+              defaultMessage: 'Upgrade to Streetmix+ to use!‎'
+            })
+          }
           break
         case 'SIGN_IN':
         default:
           if (!isSignedIn) {
-            // TODO: User functionality is currently disabled in this fork
-            // isLocked = true
-            // unlockConditionText = intl.formatMessage({
-            //   id: 'plus.locked.user',
-            //   // Default message ends with a Unicode-only left-right order mark
-            //   // to allow for proper punctuation in `rtl` text direction
-            //   // This character is hidden from editors by default!
-            //   defaultMessage: 'Sign in to use!‎'
-            // })
+            isLocked = true
+            unlockConditionText = intl.formatMessage({
+              id: 'plus.locked.user',
+              // Default message ends with a Unicode-only left-right order mark
+              // to allow for proper punctuation in `rtl` text direction
+              // This character is hidden from editors by default!
+              defaultMessage: 'Sign in to use!‎'
+            })
           }
           break
       }
@@ -196,7 +198,7 @@ function Variants (props) {
         key={set + '.' + selection}
         title={title}
         className={isSelected ? 'variant-selected' : null}
-        disabled={isSelected || isLocked}
+        disabled={!unlocked && (isSelected || isLocked)}
         onClick={getButtonOnClickHandler(set, selection)}
       >
         <svg
@@ -208,7 +210,7 @@ function Variants (props) {
           {/* `xlinkHref` is preferred over `href` for compatibility with Safari */}
           <use xlinkHref={`#icon-${icon.id}`} />
         </svg>
-        {isLocked && <FontAwesomeIcon icon={ICON_LOCK} />}
+        {isLocked && !unlocked && <FontAwesomeIcon icon={ICON_LOCK} />}
       </Button>
     )
   }
@@ -248,6 +250,7 @@ function Variants (props) {
           // Street vendors always have enabled elevation controls
           // regardless of subscriber state
           const forceEnable =
+            unlocked ||
             segment.type === 'street-vendor' ||
             flags.ELEVATION_CONTROLS_UNLOCKED.value === true
 

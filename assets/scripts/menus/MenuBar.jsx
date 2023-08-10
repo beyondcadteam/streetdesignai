@@ -10,6 +10,7 @@ import { doSignIn } from '../users/authentication'
 // import { showDialog } from '../store/slices/dialogs'
 // import logo from '../../images/logo_horizontal.svg'
 import logo from '../../images/streetdesignailogo.png'
+import { URL_NEW_STREET, URL_NEW_STREET_COPY_LAST } from '../app/constants'
 import EnvironmentBadge from './EnvironmentBadge'
 import MenuBarItem from './MenuBarItem'
 import SignInButton from './SignInButton'
@@ -153,9 +154,20 @@ function MenuBar (props) {
         <MenuBarItem
           label="New street"
           translation="menu.item.new-street"
-          url={process.env.NEW_STREET_URL || '/new'}
+          url={process.env.NEW_STREET_URL || URL_NEW_STREET || '/new'}
           target="_blank"
         />
+        <MenuBarItem
+          label="Copy street"
+          translation="menu.item.copy-street"
+          url={
+            process.env.COPY_STREET_URL ||
+            URL_NEW_STREET_COPY_LAST ||
+            '/copy-last'
+          }
+          target="_blank"
+        />
+        {/* TODO: Sharing is disabled for now */}
         {/* <MenuBarItem
           label="Share"
           translation="menu.item.share"

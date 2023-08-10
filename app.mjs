@@ -52,7 +52,9 @@ process.on('uncaughtException', function (error) {
 // Note: various sources tell us that this does not work on Windows
 process.on('SIGINT', function () {
   if (process.env.NODE_ENV === 'development') {
-    logger.info('[express] ' + chalk.yellowBright.bold('Stopping Streetmix!'))
+    logger.info(
+      '[express] ' + chalk.yellowBright.bold('Stopping Street Design AI!')
+    )
   }
   process.exit()
 })
@@ -67,7 +69,7 @@ app.locals.env = {
 // Not all headers from `helmet` are on by default. These turns on specific
 // off-by-default headers for better security as recommended by https://securityheaders.io/
 const helmetConfig = {
-  frameguard: false, // Allow Streetmix to be iframed in 3rd party sites
+  frameguard: false, // Allow Street Design AI to be iframed in 3rd party sites
   contentSecurityPolicy: false, // These are set explicitly later
   crossOriginEmbedderPolicy: false, // Load external assets
   hsts: {
@@ -100,7 +102,12 @@ const csp = {
     ],
     workerSrc: ["'self'"],
     childSrc: ['platform.twitter.com'],
-    frameSrc: ["'self'", 'streetmix.github.io', 'checkout.stripe.com'],
+    frameSrc: [
+      "'self'",
+      'streetmix.github.io',
+      'checkout.stripe.com',
+      'beyondware.com'
+    ],
     frameAncestors: process.env.FRAME_ANCESTORS
       ? JSON.parse(process.env.FRAME_ANCESTORS)
       : ["'self'"],
@@ -237,7 +244,7 @@ if (process.env.NODE_ENV === 'production') {
   const options = {
     definition: {
       info: {
-        title: 'Streetmix', // Title (required)
+        title: 'Street Design AI', // Title (required)
         version: '0.1.0' // Version (required)
       }
     },

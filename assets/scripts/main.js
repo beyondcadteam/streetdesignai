@@ -1,5 +1,13 @@
 /**
- * Streetmix
+ * Street Design AI
+ * Application Entry Point
+ *
+ * @module main
+ * @description Main entry point for the application.
+ * @requires react
+ * @requires react-dom/client
+ * @requires react-redux
+ * @requires @sentry/browser
  *
  */
 import React from 'react'
@@ -33,12 +41,23 @@ import App from './app/App'
 // Error tracking
 // Load this before all other modules. Only load when run in production.
 if (
+  process.env.SENTRY_ENABLED === 'true' ||
   window.location.hostname === 'streetmix.net' ||
-  window.location.hostname === 'www.streetmix.net'
+  window.location.hostname === 'www.streetmix.net' ||
+  window.location.hostname === 'beyondware.com' ||
+  window.location.hostname === 'www.beyondware.com' ||
+  window.location.hostname === 'streetdesign.beyondware.com'
 ) {
   Sentry.init({
-    dsn: 'https://fac2c23600414d2fb78c128cdbdeaf6f@sentry.io/82756',
-    whitelistUrls: [/streetmix\.net/, /www\.streetmix\.net/]
+    dsn:
+      process.env.SENTRY_DSN ||
+      'https://fac2c23600414d2fb78c128cdbdeaf6f@sentry.io/82756',
+    whitelistUrls: [
+      /streetmix\.net/,
+      /www\.streetmix\.net/,
+      /beyondware\.com/,
+      /www\.beyondware\.com/
+    ]
   })
 }
 

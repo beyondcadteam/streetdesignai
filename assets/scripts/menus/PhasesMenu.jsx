@@ -49,8 +49,6 @@ function PhasesMenu (props) {
       dispatch(setAppFlags({ activePhase: street.phases[0] }))
       const newStreet = { ...street.phases[0].street }
 
-      console.log({ app, street, newStreet })
-
       setTimeout(() => {
         dispatch(updateStreetData({ ...newStreet, phases: street.phases }))
       }, 250)

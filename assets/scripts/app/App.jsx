@@ -52,8 +52,7 @@ function App () {
     })
 
     init()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // After loading, do ancient DOM stuff
   useEffect(() => {

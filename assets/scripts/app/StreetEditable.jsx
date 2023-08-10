@@ -118,6 +118,7 @@ export class StreetEditable extends React.Component {
     const { draggingState } = this.props
 
     let currPos = 0
+    // console.debug({ dataNo }, this.props.street)
 
     for (let i = 0; i < dataNo; i++) {
       const width =
@@ -127,6 +128,8 @@ export class StreetEditable extends React.Component {
       currPos += width
     }
 
+    // console.debug({ currPos })
+
     let mainLeft = remainingWidth
     if (draggingState && segments[draggingState.draggedSegment] !== undefined) {
       const draggedWidth = segments[draggingState.draggedSegment].width || 0
@@ -134,6 +137,8 @@ export class StreetEditable extends React.Component {
     }
 
     mainLeft = (mainLeft * TILE_SIZE) / 2
+    // console.debug({ mainLeft, remainingWidth })
+    // console.debug({ sum: mainLeft + currPos })
 
     if (draggingState && this.withinCanvas) {
       mainLeft -= DRAGGING_MOVE_HOLE_WIDTH
@@ -156,6 +161,8 @@ export class StreetEditable extends React.Component {
   renderStreetSegments = () => {
     const { segments, units, immediateRemoval } = this.props.street
     const streetId = this.props.street.id
+
+    // console.debug('Rendering Segments', { streetId, segments })
 
     return segments.map((segment, i) => {
       const segmentPos = this.calculateSegmentPos(i)
