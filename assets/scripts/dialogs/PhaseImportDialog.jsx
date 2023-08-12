@@ -28,17 +28,11 @@ const PhaseImportDialog = (props) => {
 
       switch (segment.type) {
         case 'bus-lane':
-          if (variantString?.split('|').length === 2) {
-            variantString += '|typical'
-          }
+          if (variantString?.split('|').length === 2) { variantString += '|typical' }
           break
         case 'bike-lane':
-          if (variantString?.includes('colored')) {
-            variantString = variantString.replace('colored', 'green')
-          }
-          if (variantString?.split('|').length === 2) {
-            variantString = variantString + '|road'
-          }
+          if (variantString?.includes('colored')) { variantString = variantString.replace('colored', 'green') }
+          if (variantString?.split('|').length === 2) { variantString = variantString + '|road' }
           break
       }
 
@@ -105,11 +99,14 @@ const PhaseImportDialog = (props) => {
 
       const cleanPhases = street.phases.map((phase) => ({
         ...phase,
-        street: { ...phase.street, phases: null }
+        street: {
+          ...phase.street,
+          name: phase.street.name || name,
+          phases: null
+        }
       }))
 
       const newPhases = [...cleanPhases, newPhase]
-
       dispatch(updateStreetData({ ...newPhase.street, phases: newPhases }))
       dispatch(setAppFlags({ activePhase: newPhase }))
       closeDialog()
