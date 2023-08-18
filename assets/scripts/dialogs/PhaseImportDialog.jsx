@@ -28,11 +28,17 @@ const PhaseImportDialog = (props) => {
 
       switch (segment.type) {
         case 'bus-lane':
-          if (variantString?.split('|').length === 2) { variantString += '|typical' }
+          if (variantString?.split('|').length === 2) {
+            variantString += '|typical'
+          }
           break
         case 'bike-lane':
-          if (variantString?.includes('colored')) { variantString = variantString.replace('colored', 'green') }
-          if (variantString?.split('|').length === 2) { variantString = variantString + '|road' }
+          if (variantString?.includes('colored')) {
+            variantString = variantString.replace('colored', 'green')
+          }
+          if (variantString?.split('|').length === 2) {
+            variantString = variantString + '|road'
+          }
           break
       }
 
@@ -65,7 +71,6 @@ const PhaseImportDialog = (props) => {
         location,
         rightBuildingHeight,
         rightBuildingVariant,
-        schemaVersion,
         segments,
         showAnalytics,
         units,
@@ -89,7 +94,7 @@ const PhaseImportDialog = (props) => {
           location,
           rightBuildingHeight,
           rightBuildingVariant,
-          schemaVersion,
+          schemaVersion: 27,
           segments: compatibilityUpgrade(segments),
           showAnalytics,
           units,

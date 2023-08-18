@@ -374,6 +374,7 @@ function _signInLoaded () {
       fetchStreetFromServer()
       break
     case MODES.NEW_STREET:
+    case MODES.NEW_STREET_COPY:
     case MODES.NEW_STREET_COPY_LAST:
       if (app.readOnly) {
         showError(ERRORS.CANNOT_CREATE_NEW_STREET_ON_PHONE, true)

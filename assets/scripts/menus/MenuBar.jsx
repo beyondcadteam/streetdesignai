@@ -10,7 +10,8 @@ import { doSignIn } from '../users/authentication'
 // import { showDialog } from '../store/slices/dialogs'
 // import logo from '../../images/logo_horizontal.svg'
 import logo from '../../images/streetdesignailogo.png'
-import { URL_NEW_STREET, URL_NEW_STREET_COPY_LAST } from '../app/constants'
+// import { URL_NEW_STREET, URL_NEW_STREET_COPY, URL_NEW_STREET_COPY_LAST } from '../app/constants'
+import { URL_NEW_STREET } from '../app/constants'
 import EnvironmentBadge from './EnvironmentBadge'
 import MenuBarItem from './MenuBarItem'
 import SignInButton from './SignInButton'
@@ -20,6 +21,7 @@ import './MenuBar.scss'
 
 function MenuBar (props) {
   const user = useSelector((state) => state.user.signInData?.details || null)
+  // const street = useSelector((state) => state.street || {})
   const isSubscriber = useSelector(
     (state) => state.user.signedIn && state.user.isSubscriber
   )
@@ -157,16 +159,12 @@ function MenuBar (props) {
           url={process.env.NEW_STREET_URL || URL_NEW_STREET || '/new'}
           target="_blank"
         />
-        <MenuBarItem
+        {/* <MenuBarItem
           label="Copy street"
           translation="menu.item.copy-street"
-          url={
-            process.env.COPY_STREET_URL ||
-            URL_NEW_STREET_COPY_LAST ||
-            '/copy-last'
-          }
+          url={street?.namespacedId ? `${URL_NEW_STREET_COPY}/${street.namespacedId}` : URL_NEW_STREET_COPY_LAST}
           target="_blank"
-        />
+        /> */}
         {/* TODO: Sharing is disabled for now */}
         {/* <MenuBarItem
           label="Share"

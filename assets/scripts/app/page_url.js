@@ -59,6 +59,10 @@ export function processUrl () {
   } else if (pathname === URL_NEW_STREET_COPY_LAST) {
     setMode(MODES.NEW_STREET_COPY_LAST)
 
+    // Copy an existing street
+  } else if (pathname.includes('copy/')) {
+    setMode(MODES.NEW_STREET_COPY)
+
     // Coming back from a successful sign in
   } else if (pathname === JUST_SIGNED_IN_PATH) {
     setMode(MODES.JUST_SIGNED_IN)

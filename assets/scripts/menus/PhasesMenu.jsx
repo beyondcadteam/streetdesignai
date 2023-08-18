@@ -100,7 +100,7 @@ function PhasesMenu (props) {
         JSON.stringify({ ...app.activePhase.street, phases: null }) ===
         JSON.stringify({ ...street, phases: null })
 
-      if (!streetEqual) {
+      if (!streetEqual && street?.phases) {
         const phases = JSON.parse(JSON.stringify(street.phases))
         const index = phases.findIndex(
           (phase) => phase.id === app.activePhase.id
