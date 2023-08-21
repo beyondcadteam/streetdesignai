@@ -167,8 +167,10 @@ function MenuBar (props) {
           translation="menu.item.copy-street"
           url={
             street?.namespacedId
-              ? `${URL_NEW_STREET_COPY}/${street.namespacedId}`
-              : URL_NEW_STREET_COPY_LAST
+              ? `${process.env.COPY_STREET_URL || URL_NEW_STREET_COPY}/${
+                  street.namespacedId
+                }`
+              : process.env.COPY_LAST_URL || URL_NEW_STREET_COPY_LAST
           }
           target="_blank"
         />
