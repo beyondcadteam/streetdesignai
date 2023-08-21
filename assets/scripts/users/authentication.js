@@ -9,7 +9,11 @@ import { MODES, processMode, getMode, setMode } from '../app/mode'
 import { generateFlagOverrides, applyFlagOverrides } from '../app/flag_utils'
 import { formatMessage } from '../locales/locale'
 import { setPromoteStreet } from '../streets/remix'
-import { fetchStreetFromServer, createNewStreetOnServer } from '../streets/xhr'
+import {
+  fetchStreetFromServer,
+  createNewStreetOnServer,
+  setStreetId
+} from '../streets/xhr'
 import store from '../store'
 import { updateSettings } from '../store/slices/settings'
 import { setSignInData, clearSignInData } from '../store/slices/user'
@@ -366,6 +370,14 @@ function _signInLoaded () {
   }
   mode = getMode()
 
+  if (mode === MODES.NEW_STREET_COPY) {
+    const pathname = window.location.pathname.replace(/\/+$/, '')
+    const urlParts = pathname.split(/\//).filter((x) => x !== '')
+    const copyId = urlParts[1]
+    setStreetId(null, copyId)
+    fetchStreetFromServer()
+  }
+
   switch (mode) {
     case MODES.EXISTING_STREET:
     case MODES.CONTINUE:
@@ -374,7 +386,6 @@ function _signInLoaded () {
       fetchStreetFromServer()
       break
     case MODES.NEW_STREET:
-    case MODES.NEW_STREET_COPY:
     case MODES.NEW_STREET_COPY_LAST:
       if (app.readOnly) {
         showError(ERRORS.CANNOT_CREATE_NEW_STREET_ON_PHONE, true)

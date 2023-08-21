@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid'
 import { initSystemCapabilities } from '../preinit/system_capabilities'
 import { initializeFlagSubscribers } from '../app/flag_utils'
 import { initCoil } from '../integrations/coil'
@@ -11,21 +10,15 @@ import { initStreetDataChangedListener } from '../streets/street'
 import { initEnvironsChangedListener } from '../streets/environs'
 import { initDragTypeSubscriber } from '../segments/drag_and_drop'
 import { getPromoteStreet, remixStreet } from '../streets/remix'
-import {
-  fetchLastStreet,
-  saveStreetToServer,
-  setStreetId
-} from '../streets/xhr'
+import { fetchLastStreet } from '../streets/xhr'
 import { loadSignIn } from '../users/authentication'
 import { updateSettingsFromCountryCode } from '../users/localization'
 import { initSettingsStoreObserver } from '../users/settings'
 import store, { observeStore } from '../store'
 import { openGallery } from '../store/actions/gallery'
 import { everythingLoaded } from '../store/slices/app'
-import { updateStreetData } from '../store/slices/street'
 import { detectGeolocation } from '../store/slices/user'
 // import { showDialog } from '../store/slices/dialogs'
-import { getStreetWithParams } from '../util/api'
 import { addEventListeners } from './event_listeners'
 import { getMode, MODES, processMode } from './mode'
 import { processUrl } from './page_url'
@@ -108,7 +101,6 @@ export function checkIfEverythingIsLoaded () {
 
 async function onEverythingLoaded () {
   const initMode = getMode()
-  const copyId = window.location.pathname.split('/').pop()
   if (initMode === MODES.NEW_STREET_COPY_LAST) fetchLastStreet()
 
   segmentsChanged()
@@ -145,35 +137,7 @@ async function onEverythingLoaded () {
     )
   }
 
-  if (mode === MODES.NEW_STREET_COPY) {
-    try {
-      const response = await getStreetWithParams(null, copyId)
-      if (!response?.data) throw new Error('No response data to copy')
-
-      const street = store.getState().street
-      const clonedStreet = {
-        ...response.data.data.street,
-        id: uuidv4(),
-        namespacedId: street.namespacedId,
-        phases: response.data?.phases?.map((phase) => ({
-          ...phase,
-          id: uuidv4(),
-          namespacedId: street.namespacedId
-        }))
-      }
-
-      setStreetId(clonedStreet.id, clonedStreet.namespacedId)
-      store.dispatch(updateStreetData(clonedStreet))
-      segmentsChanged()
-      setLastStreet()
-      saveStreetToServer()
-    } catch (err) {
-      console.error(err)
-      window.alert('Failed to copy street data')
-    }
-  }
-
-  if (getPromoteStreet()) {
+  if (getPromoteStreet() || mode === MODES.NEW_STREET_COPY) {
     remixStreet()
   }
 
