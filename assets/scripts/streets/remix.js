@@ -36,7 +36,7 @@ export function setPromoteStreet (value) {
   promoteStreet = value
 }
 
-export function remixStreet () {
+export function remixStreet (callback) {
   let dontAddSuffix
   if (app.readOnly) {
     return
@@ -87,7 +87,7 @@ export function remixStreet () {
         'Content-Type': 'application/json'
       }
     },
-    receiveRemixedStreet
+    callback || receiveRemixedStreet
   )
 }
 
