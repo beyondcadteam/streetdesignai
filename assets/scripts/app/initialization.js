@@ -21,7 +21,7 @@ import { updateSettingsFromCountryCode } from '../users/localization'
 import { initSettingsStoreObserver } from '../users/settings'
 import store, { observeStore } from '../store'
 import { openGallery } from '../store/actions/gallery'
-import { everythingLoaded } from '../store/slices/app'
+import { everythingLoaded, setAppFlags } from '../store/slices/app'
 import { detectGeolocation } from '../store/slices/user'
 import { updateStreetData } from '../store/slices/street'
 // import { showDialog } from '../store/slices/dialogs'
@@ -146,23 +146,29 @@ async function onEverythingLoaded () {
   if (getPromoteStreet() || mode === MODES.NEW_STREET_COPY) {
     remixStreet((data) => {
       setStreetId(data.id, data.namespacedId)
-      store.dispatch(
-        updateStreetData({
-          id: data.id,
-          namespacedId: data.namespacedId,
-          phases: data.phases.map((phase) => ({
-            ...phase,
-            id: uuidv4(),
-            namespacedId: data.namespacedId,
-            street: {
-              ...phase.street,
-              id: data.id,
-              namespacedId: data.namespacedId
-            }
-          }))
-        })
-      )
 
+      const streetData = {
+        ...data.data.street,
+        id: data.id,
+        namespacedId: data.namespacedId,
+        phases: data.phases.map((phase) => ({
+          ...phase,
+          id: uuidv4(),
+          namespacedId: data.namespacedId,
+          street: {
+            ...phase.street,
+            id: data.id,
+            namespacedId: data.namespacedId
+          }
+        }))
+      }
+
+      store.dispatch(updateStreetData(streetData))
+      store.dispatch(setAppFlags({ activePhase: streetData.phases[0] }))
+
+      // updateEditCount(1)
+      // segmentsChanged()
+      // setLastStreet()
       saveStreetToServer(false)
     })
   }
