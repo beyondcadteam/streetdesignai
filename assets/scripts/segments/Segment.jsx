@@ -59,6 +59,7 @@ export class Segment extends React.Component {
 
     // Provided by store
     locale: PropTypes.string,
+    layoutMode: PropTypes.bool,
     descriptionVisible: PropTypes.bool,
     activeSegment: PropTypes.number,
     capacitySource: PropTypes.string,
@@ -358,6 +359,9 @@ export class Segment extends React.Component {
         ref={(ref) => {
           this.streetSegment = ref
         }}
+        onMouseDown={(e) => {
+          if (this.props.layoutMode) e.preventDefault()
+        }}
         onMouseEnter={this.handleSegmentMouseEnter}
         onMouseLeave={this.handleSegmentMouseLeave}
       >
@@ -369,7 +373,7 @@ export class Segment extends React.Component {
           capacity={average}
           showCapacity={enableAnalytics}
         />
-        <SegmentDragHandles width={elementWidth} />
+        {!this.props.layoutMode && <SegmentDragHandles width={elementWidth} />}
         <CSSTransition
           key="old-variant"
           in={!this.state.switchSegments}
@@ -399,6 +403,7 @@ function mapStateToProps (state) {
   return {
     enableAnalytics: state.flags.ANALYTICS.value && state.street.showAnalytics,
     locale: state.locale.locale,
+    layoutMode: state.app.layoutMode,
     descriptionVisible: state.infoBubble.descriptionVisible,
     activeSegment:
       typeof state.ui.activeSegment === 'number'

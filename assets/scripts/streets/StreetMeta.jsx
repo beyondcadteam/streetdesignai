@@ -20,48 +20,59 @@ function StreetMeta (props) {
   const app = useSelector((state) => state.app)
   const street = useSelector((state) => state.street)
 
-  return (
-    <>
-      <div className="street-metadata">
-        <StreetMetaWidthContainer />
-        {enableAnalytics && <StreetMetaAnalytics />}
-        <StreetMetaGeotag />
-        <StreetMetaAuthor />
-        <StreetMetaDate />
-      </div>
+  return app.layoutMode
+    ? null
+    : (
+      <>
+        <div className="street-metadata">
+          <StreetMetaWidthContainer />
+          {enableAnalytics && <StreetMetaAnalytics />}
+          <StreetMetaGeotag />
+          <StreetMetaAuthor />
+          <StreetMetaDate />
+        </div>
 
-      <div className="street-metadata-phases">
-        {street?.phases?.length > 1 &&
-          street.phases.map((phase) => {
-            return (
-              <div
-                key={phase.id}
-                className={phase.id === app.activePhase?.id ? 'selected' : null}
-                onClick={() => {
-                  const clonedPhases = JSON.parse(
-                    JSON.stringify(street.phases)
-                  ).map((phase) => ({
-                    ...phase,
-                    street: { ...phase.street, phases: null }
-                  }))
+        {!app.layoutMode && (
+          <div className="street-metadata-phases">
+            {street?.phases?.length > 1 &&
+            street.phases.map((phase) => {
+              return (
+                <div
+                  key={phase.id}
+                  className={
+                    phase.id === app.activePhase?.id ? 'selected' : null
+                  }
+                  onClick={() => {
+                    const clonedPhases = JSON.parse(
+                      JSON.stringify(street.phases)
+                    ).map((phase) => ({
+                      ...phase,
+                      street: { ...phase.street, phases: null }
+                    }))
 
-                  const index = clonedPhases.findIndex((p) => p.id === phase.id)
-                  const clonedPhase = clonedPhases[index]
-                  if (!clonedPhase) return
+                    const index = clonedPhases.findIndex(
+                      (p) => p.id === phase.id
+                    )
+                    const clonedPhase = clonedPhases[index]
+                    if (!clonedPhase) return
 
-                  dispatch(setAppFlags({ activePhase: clonedPhase }))
-                  dispatch(
-                    updateStreetData({ ...phase.street, phases: clonedPhases })
-                  )
-                }}
-              >
-                <span>{phase.name}</span>
-              </div>
-            )
-          })}
-      </div>
-    </>
-  )
+                    dispatch(setAppFlags({ activePhase: clonedPhase }))
+                    dispatch(
+                      updateStreetData({
+                        ...phase.street,
+                        phases: clonedPhases
+                      })
+                    )
+                  }}
+                >
+                  <span>{phase.name}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </>
+      )
 }
 
 export default StreetMeta

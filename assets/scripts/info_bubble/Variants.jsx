@@ -48,8 +48,10 @@ function Variants (props) {
 
   const unlocked = process.env.UNLOCK_ALL_VARIANTS === 'true'
   const segment = useSelector((state) => {
-    if (Number.isInteger(position) && state.street.segments[position]) {
-      return state.street.segments[position]
+    if (!state.app.layoutMode) {
+      if (Number.isInteger(position) && state.street.segments[position]) {
+        return state.street.segments[position]
+      }
     }
   })
 
@@ -61,23 +63,25 @@ function Variants (props) {
 
   let variantSets = []
   let elevationToggle = false
-  switch (type) {
-    case INFO_BUBBLE_TYPE_SEGMENT: {
-      const segmentInfo = getSegmentInfo(segment.type)
-      if (segmentInfo) {
-        variantSets = segmentInfo.variants
+  if (segment) {
+    switch (type) {
+      case INFO_BUBBLE_TYPE_SEGMENT: {
+        const segmentInfo = getSegmentInfo(segment.type)
+        if (segmentInfo) {
+          variantSets = segmentInfo.variants
+        }
+        if (segmentInfo?.enableElevation) {
+          elevationToggle = true
+        }
+        break
       }
-      if (segmentInfo?.enableElevation) {
-        elevationToggle = true
-      }
-      break
+      case INFO_BUBBLE_TYPE_LEFT_BUILDING:
+      case INFO_BUBBLE_TYPE_RIGHT_BUILDING:
+        variantSets = Object.keys(VARIANT_ICONS.building)
+        break
+      default:
+        break
     }
-    case INFO_BUBBLE_TYPE_LEFT_BUILDING:
-    case INFO_BUBBLE_TYPE_RIGHT_BUILDING:
-      variantSets = Object.keys(VARIANT_ICONS.building)
-      break
-    default:
-      break
   }
 
   // Remove any empty entries

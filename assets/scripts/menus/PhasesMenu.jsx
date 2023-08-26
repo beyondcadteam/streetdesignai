@@ -12,7 +12,7 @@ import {
   TrashIcon
 } from '@primer/octicons-react'
 
-import { saveStreetToServerIfNecessary } from '../streets/data_model'
+import { saveStreetToServer } from '../streets/xhr'
 import Icon from '../ui/Icon'
 // import ExternalLink from '../ui/ExternalLink'
 // import { showDialog } from '../store/slices/dialogs'
@@ -69,7 +69,7 @@ function PhasesMenu (props) {
     if (!phasesEqual) {
       setPhases(street.phases)
       dispatch(updateStreetData({ phases: street.phases }))
-      setTimeout(saveStreetToServerIfNecessary, 250)
+      saveStreetToServer()
     }
   }, [street.phases, phases, dispatch])
 
@@ -80,7 +80,7 @@ function PhasesMenu (props) {
       } else {
         const defaultPhase = [
           {
-            id: street.id + `:${Date.now().toString(36).slice(2)}`,
+            id: street.id + `:phase-${Date.now().toString(36).slice(2)}`,
             name:
               street.name ||
               intl.formatMessage({
@@ -93,7 +93,7 @@ function PhasesMenu (props) {
 
         dispatch(updateStreetData({ phases: defaultPhase }))
         dispatch(setAppFlags({ activePhase: defaultPhase[0] }))
-        saveStreetToServerIfNecessary()
+        saveStreetToServer()
       }
     } else {
       const streetEqual =
@@ -140,16 +140,18 @@ function PhasesMenu (props) {
       ...phase,
       street: { ...phase.street, phases: null }
     }))
+
     const streetName =
       street.name ||
       intl.formatMessage({
         id: 'street.default-name',
         defaultMessage: 'Unnamed St'
       })
+
     const clonedStreet = JSON.parse(JSON.stringify({ ...street, phases: null }))
 
     newItems.push({
-      id: street.id + `:${Date.now().toString(36).slice(2)}`,
+      id: street.id + `:phase-${Date.now().toString(36).slice(2)}`,
       name: `${streetName} : Phase ${newItems.length + 1}`,
       street: clonedStreet
     })
@@ -170,16 +172,12 @@ function PhasesMenu (props) {
   function editPhase (index) {
     const newItems = [...street.phases]
     const item = newItems[index]
-    // const newName = window.prompt('Enter a new name for this phase', item.name)
-    // if (!newName) return
-    // newItems[index] = { ...item, name: newName }
-    // dispatch(setAppFlags({ activePhase: newItems[index] }))
-    // dispatch(updateStreetData({ phases: [...newItems] }))
 
     dispatch(
       setAppFlags({ dialogData: { phaseId: item.id, phaseName: item.name } })
     )
     dispatch(showDialog('PHASE_RENAME'))
+
     setTimeout(() => {
       document.querySelector('#phase-new-name').focus()
     }, 50)

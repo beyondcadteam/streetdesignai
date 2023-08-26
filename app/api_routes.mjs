@@ -177,6 +177,8 @@ const router = Router()
  *               $ref: '#/definitions/Segment'
  *           editCount:
  *             type: integer
+ *           layouts:
+ *             type: array
  *   NewStreetImage:
  *     $ref: '#/definitions/StreetImageData'
  *   NewStreet:

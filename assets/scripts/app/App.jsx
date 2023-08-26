@@ -22,6 +22,7 @@ import DebugInfo from './DebugInfo'
 import BlockingShield from './BlockingShield'
 import BlockingError from './BlockingError'
 import StreetView from './StreetView'
+import LayoutView from './LayoutView'
 import PrintContainer from './PrintContainer'
 import WelcomePanel from './WelcomePanel'
 import NotificationBar from './NotificationBar'
@@ -32,6 +33,7 @@ function App () {
   const [isLoading, setLoading] = useState(true)
   const locale = useSelector((state) => state.locale)
   const dir = useSelector((state) => state.app.contentDirection)
+  const layoutMode = useSelector((state) => state.app.layoutMode)
   const everythingLoaded = useSelector((state) => state.app.everythingLoaded)
   const colorMode = useSelector((state) => state.settings.colorMode)
   const dispatch = useDispatch()
@@ -96,10 +98,18 @@ function App () {
                 <InfoBubble />
                 <DebugHoverPolygon />
                 <WelcomePanel />
-                <PaletteContainer />
-                <EnvironmentEditor />
-                <SegmentDragLayer />
-                <StreetView />
+                {layoutMode
+                  ? (
+                    <LayoutView />
+                    )
+                  : (
+                    <>
+                      <PaletteContainer />
+                      <EnvironmentEditor />
+                      <SegmentDragLayer />
+                      <StreetView />
+                    </>
+                    )}
                 <ToastContainer />
                 {/* <SentimentSurveyContainer /> */}
               </div>

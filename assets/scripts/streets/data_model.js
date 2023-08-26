@@ -437,6 +437,7 @@ export function trimStreetData (street) {
     leftBuildingVariant: street.leftBuildingVariant,
     rightBuildingVariant: street.rightBuildingVariant,
     phases: street.phases,
+    layouts: street.layouts,
     segments: street.segments.map((origSegment) => {
       const segment = {
         id: origSegment.id,

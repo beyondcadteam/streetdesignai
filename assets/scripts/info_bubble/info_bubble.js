@@ -83,7 +83,12 @@ export const infoBubble = {
    */
   considerShowing: function (event, segmentEl, type) {
     // Bail under UI conditions where we shouldn't show the info bubble
-    if (Boolean(store.getState().menus) === true || app.readOnly) {
+    if (
+      Boolean(store.getState().menus) === true ||
+      app.readOnly ||
+      app.layoutMode ||
+      !document.querySelector('#street-section-outer')
+    ) {
       return
     }
 

@@ -26,10 +26,12 @@ export class StreetEditable extends React.Component {
     setBuildingWidth: PropTypes.func.isRequired,
     updatePerspective: PropTypes.func.isRequired,
     draggingType: PropTypes.number,
+    phase: PropTypes.object,
 
     // Provided by store
     street: PropTypes.object.isRequired,
     draggingState: PropTypes.object,
+    layoutMode: PropTypes.bool,
 
     // Provided by DropTarget
     connectDropTarget: PropTypes.func
@@ -96,7 +98,9 @@ export class StreetEditable extends React.Component {
   }
 
   updateSegmentData = (ref, dataNo, segmentPos) => {
-    const { segments } = this.props.street
+    const { segments } = this.props.phase
+      ? this.props.phase.street
+      : this.props.street
     const segment = segments[dataNo]
 
     if (segment) {
@@ -114,7 +118,9 @@ export class StreetEditable extends React.Component {
   }
 
   calculateSegmentPos = (dataNo) => {
-    const { segments, remainingWidth } = this.props.street
+    const { segments, remainingWidth } = this.props.phase
+      ? this.props.phase.street
+      : this.props.street
     const { draggingState } = this.props
 
     let currPos = 0
@@ -159,7 +165,9 @@ export class StreetEditable extends React.Component {
   }
 
   renderStreetSegments = () => {
-    const { segments, units, immediateRemoval } = this.props.street
+    const { segments, units, immediateRemoval } = this.props.phase
+      ? this.props.phase.street
+      : this.props.street
     const streetId = this.props.street.id
 
     // console.debug('Rendering Segments', { streetId, segments })
@@ -198,15 +206,22 @@ export class StreetEditable extends React.Component {
       width: this.props.street.width * TILE_SIZE + 'px'
     }
 
+    // TODO: Fix duplicate IDs by adapting the logic that uses the ID
     return connectDropTarget(
       <div
         id="street-section-editable"
+        className="street-section-editable"
         key={this.props.street.id}
         style={style}
         ref={(ref) => {
           this.streetSectionEditable = ref
         }}
       >
+        {this.props.layoutMode && (
+          <h1 className="street-section-layout-phase-name">
+            {this.props.phase.name}
+          </h1>
+        )}
         <TransitionGroup
           key={this.props.street.id}
           component={null}
@@ -223,6 +238,8 @@ export class StreetEditable extends React.Component {
 function mapStateToProps (state) {
   return {
     street: state.street,
+    layoutMode: state.app.layoutMode,
+    activeLayout: state.app.activeLayout,
     draggingState: state.ui.draggingState
   }
 }

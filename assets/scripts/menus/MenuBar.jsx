@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import { useIntl } from 'react-intl'
 import { IoLanguage } from 'react-icons/io5'
-import { StackIcon } from '@primer/octicons-react'
+import { RowsIcon, StackIcon } from '@primer/octicons-react'
 import AccessibleIcon from '../ui/AccessibleIcon'
 import { doSignIn } from '../users/authentication'
 // import { showDialog } from '../store/slices/dialogs'
@@ -155,6 +155,16 @@ function MenuBar (props) {
           <span>
             <StackIcon size={16} />
             <span style={{ marginLeft: '5px' }}>Phases</span>
+          </span>
+        </MenuBarItem>
+        <MenuBarItem
+          label="Layouts"
+          translation="menu.item.layouts"
+          onClick={handleClickMenuButton('layouts')}
+        >
+          <span>
+            <RowsIcon size={16} />
+            <span style={{ marginLeft: '5px' }}>Layouts</span>
           </span>
         </MenuBarItem>
         <MenuBarItem

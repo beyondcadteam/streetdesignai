@@ -11,6 +11,7 @@ import IdentityMenu from './IdentityMenu'
 import LocaleMenu from './LocaleMenu'
 import ShareMenu from './ShareMenu'
 import PhasesMenu from './PhasesMenu'
+import LayoutsMenu from './LayoutsMenu'
 import './MenusContainer.scss'
 
 class MenusContainer extends React.PureComponent {
@@ -161,6 +162,11 @@ class MenusContainer extends React.PureComponent {
           />
           <PhasesMenu
             isActive={activeMenu === 'phases'}
+            menuItemNode={activeMenuItemNode}
+            alignOpposite={true}
+          />
+          <LayoutsMenu
+            isActive={activeMenu === 'layouts'}
             menuItemNode={activeMenuItemNode}
             alignOpposite={true}
           />

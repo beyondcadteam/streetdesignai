@@ -694,6 +694,7 @@ export function editSegmentLabel (segment, position) {
  */
 export function getSegmentEl (position) {
   if (!position && position !== 0) return
+  if (!document.getElementById('street-section-editable')) return
 
   let segmentEl
   if (position === BUILDING_LEFT_POSITION) {

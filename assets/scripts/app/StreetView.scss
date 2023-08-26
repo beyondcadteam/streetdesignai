@@ -18,6 +18,22 @@
   }
 }
 
+.layout-section-outer {
+  margin-inline: auto;
+  min-height: 35vh;
+  inset: -$gallery-height 0 -20px; // Bottom inset hides the scrollbar
+  overflow-x: auto;
+  overflow-y: hidden;
+  touch-action: pan-x;
+
+  /* Prevent overscroll from doing forward/back navigation on some browsers */
+  overscroll-behavior-x: contain;
+
+  [dir="rtl"] & {
+    direction: ltr;
+  }
+}
+
 #street-section-inner {
   position: absolute;
   display: block;
@@ -27,11 +43,20 @@
   user-select: none;
 }
 
-#street-section-editable {
+#street-section-editable,
+.street-section-editable {
   position: absolute;
   height: $canvas-height + 80;
   text-align: left;
   touch-action: pan-x;
+}
+
+.street-section-layout-phase-name {
+  position: relative;
+  top: 25px;
+  z-index: 1;
+  text-align: center;
+  font-size: 1.5rem;
 }
 
 #street-section-canvas {
