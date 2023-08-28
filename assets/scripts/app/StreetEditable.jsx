@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { DropTarget } from 'react-dnd'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import { IoPodiumOutline } from 'react-icons/io5'
+import { FormattedMessage } from 'react-intl'
 import { flow } from '../util/flow'
 import Segment from '../segments/Segment'
 import {
@@ -18,6 +20,8 @@ import {
   makeSpaceBetweenSegments,
   isSegmentWithinCanvas
 } from '../segments/drag_and_drop'
+import { getStreetCapacity } from '../segments/capacity'
+import { formatNumber } from '../util/number_format'
 
 export class StreetEditable extends React.Component {
   static propTypes = {
@@ -32,6 +36,7 @@ export class StreetEditable extends React.Component {
     street: PropTypes.object.isRequired,
     draggingState: PropTypes.object,
     layoutMode: PropTypes.bool,
+    locale: PropTypes.string.isRequired,
 
     // Provided by DropTarget
     connectDropTarget: PropTypes.func
@@ -218,9 +223,24 @@ export class StreetEditable extends React.Component {
         }}
       >
         {this.props.layoutMode && (
-          <h1 className="street-section-layout-phase-name">
-            {this.props.phase.name}
-          </h1>
+          <>
+            <h1 className="street-section-layout-phase-name">
+              {this.props.phase.name}
+            </h1>
+            <div className="street-section-layout-phase-meta">
+              <IoPodiumOutline style={{ marginInline: '0.5rem' }} />
+              <FormattedMessage
+                id="capacity.ppl-per-hour"
+                defaultMessage="{capacity} people/hr"
+                values={{
+                  capacity: formatNumber(
+                    getStreetCapacity(this.props.phase.street).average,
+                    this.props.locale
+                  )
+                }}
+              />
+            </div>
+          </>
         )}
         <TransitionGroup
           key={this.props.street.id}
@@ -240,7 +260,8 @@ function mapStateToProps (state) {
     street: state.street,
     layoutMode: state.app.layoutMode,
     activeLayout: state.app.activeLayout,
-    draggingState: state.ui.draggingState
+    draggingState: state.ui.draggingState,
+    locale: state.locale.locale
   }
 }
 

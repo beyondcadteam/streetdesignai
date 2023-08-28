@@ -11,6 +11,16 @@
   background-color: #a9ccdb;
 }
 
+.layout-view::-webkit-scrollbar {
+  width: 10px;
+}
+
+.layout-view::-webkit-scrollbar-thumb {
+  background-color: #5bc17d;
+  border-top-left-radius: 25px;
+  border-bottom-left-radius: 25px;
+}
+
 #layout-view-layouts-menu {
   position: fixed;
   top: 150px;
@@ -28,6 +38,10 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
+  }
+
+  @media screen and (max-width: 1450px) {
+    display: none;
   }
 }
 
