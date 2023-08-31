@@ -51,8 +51,8 @@ function StreetMeta (props) {
               onClick={openLayoutDialog}
             >
               {intl.formatMessage({
-                id: 'layouts.editLayout',
-                defaultMessage: 'Edit Layout'
+                id: 'phases.addPhases',
+                defaultMessage: 'Add Phases'
               })}
             </Button>
             )
