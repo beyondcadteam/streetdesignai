@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useIntl } from 'react-intl'
 
 import './LayoutView.scss'
-import { EyeClosedIcon } from '@primer/octicons-react'
 import { setAppFlags } from '../store/slices/app'
 import Button from '../ui/Button'
 import StreetView from './StreetView'
@@ -46,20 +45,16 @@ export default function LayoutView () {
 
       <div id="layout-view-layouts-menu">
         <div id="layout-view-layouts-menu-header">
-          <h1>Layout Mode</h1>
-          <span
-            title={intl.formatMessage({
-              id: 'layouts.layoutMode',
-              defaultMessage: 'Toggle Layout Mode'
-            })}
+          <Button
             onClick={toggleLayoutMode}
-            style={{
-              cursor: 'pointer',
-              marginLeft: '1rem'
-            }}
+            style={{ margin: 'auto' }}
+            tertiary={true}
           >
-            <EyeClosedIcon size={20} />
-          </span>
+            {intl.formatMessage({
+              id: 'layouts.exitLayoutMode',
+              defaultMessage: 'Exit Layout Mode'
+            })}
+          </Button>
         </div>
 
         {street.layouts.map((l) => {

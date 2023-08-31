@@ -3,8 +3,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useIntl } from 'react-intl'
 import {
-  EyeClosedIcon,
-  EyeIcon,
   PencilIcon,
   PlusIcon,
   RowsIcon,
@@ -201,44 +199,55 @@ function LayoutsMenu (props) {
   return (
     <Menu {...props}>
       <div className="layouts-menu">
-        <span style={{ marginRight: '1rem' }}>
-          <RowsIcon size={24} />
-        </span>
-        <h1 style={{ margin: 0, display: 'inline', userSelect: 'none' }}>
-          Layouts
-        </h1>
-        <span
-          title={intl.formatMessage({
-            id: 'layouts.addLayout',
-            defaultMessage: 'Add Layout'
-          })}
-          onClick={addLayout}
-          style={{
-            display:
-              street?.layouts?.length ===
-              Number(process.env.LAYOUT_LIMIT || '8')
-                ? 'none'
-                : 'inline',
-            cursor: 'pointer',
-            marginLeft: '1rem'
-          }}
-        >
-          <PlusIcon size={24} />
-        </span>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div>
+            <span style={{ marginRight: '1rem' }}>
+              <RowsIcon size={24} />
+            </span>
+            <h1 style={{ margin: 0, display: 'inline', userSelect: 'none' }}>
+              Layouts
+            </h1>
 
-        <span
-          title={intl.formatMessage({
-            id: 'layouts.layoutMode',
-            defaultMessage: 'Toggle Layout Mode'
-          })}
-          onClick={toggleLayoutMode}
-          style={{
-            cursor: 'pointer',
-            marginLeft: '1rem'
-          }}
-        >
-          {app.layoutMode ? <EyeClosedIcon size={20} /> : <EyeIcon size={20} />}
-        </span>
+            <span
+              title={intl.formatMessage({
+                id: 'layouts.addLayout',
+                defaultMessage: 'Add Layout'
+              })}
+              onClick={addLayout}
+              style={{
+                display:
+                  street?.layouts?.length ===
+                  Number(process.env.LAYOUT_LIMIT || '8')
+                    ? 'none'
+                    : 'inline',
+                cursor: 'pointer',
+                marginLeft: '1rem'
+              }}
+            >
+              <PlusIcon size={24} />
+            </span>
+          </div>
+
+          <span
+            onClick={toggleLayoutMode}
+            style={{
+              position: 'relative',
+              cursor: 'pointer',
+              marginLeft: '1rem',
+              top: '10px'
+            }}
+          >
+            {/* {app.layoutMode ? <EyeClosedIcon size={20} /> : <EyeIcon size={20} />} */}
+            {intl.formatMessage({
+              id: app.layoutMode
+                ? 'layouts.exitLayoutMode'
+                : 'layouts.enterLayoutMode',
+              defaultMessage: app.layoutMode
+                ? 'Exit Layout Mode'
+                : 'Enter Layout Mode'
+            })}
+          </span>
+        </div>
 
         <hr />
 

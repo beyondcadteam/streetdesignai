@@ -1,8 +1,11 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useIntl } from 'react-intl'
 
 import { setAppFlags } from '../store/slices/app'
 import { updateStreetData } from '../store/slices/street'
+import { showDialog } from '../store/slices/dialogs'
+import Button from '../ui/Button'
 import StreetMetaWidthContainer from './StreetMetaWidthContainer'
 import StreetMetaAuthor from './StreetMetaAuthor'
 import StreetMetaDate from './StreetMetaDate'
@@ -15,26 +18,58 @@ function StreetMeta (props) {
     (state) => (state.flags.ANALYTICS && state.flags.ANALYTICS.value) || false
   )
 
+  const intl = useIntl()
   const dispatch = useDispatch()
 
   const app = useSelector((state) => state.app)
   const street = useSelector((state) => state.street)
 
-  return app.layoutMode
-    ? null
-    : (
-      <>
-        <div className="street-metadata">
-          <StreetMetaWidthContainer />
-          {enableAnalytics && <StreetMetaAnalytics />}
-          <StreetMetaGeotag />
-          <StreetMetaAuthor />
-          <StreetMetaDate />
-        </div>
+  const openLayoutDialog = () => {
+    dispatch(
+      setAppFlags({
+        dialogData: {
+          layout: app.activeLayout,
+          phases: street.phases?.map((phase) => ({
+            ...phase,
+            street: { ...phase.street, phases: null }
+          }))
+        }
+      })
+    )
 
-        {!app.layoutMode && (
-          <div className="street-metadata-phases">
-            {street?.phases?.length > 1 &&
+    dispatch(showDialog('LAYOUT_EDIT'))
+  }
+
+  return (
+    <>
+      <div className="street-metadata">
+        {app.layoutMode
+          ? (
+            <Button
+              secondary={true}
+              id="layout-view-add-phase-button"
+              onClick={openLayoutDialog}
+            >
+              {intl.formatMessage({
+                id: 'layouts.editLayout',
+                defaultMessage: 'Edit Layout'
+              })}
+            </Button>
+            )
+          : (
+            <>
+              <StreetMetaWidthContainer />
+              {enableAnalytics && <StreetMetaAnalytics />}
+              <StreetMetaGeotag />
+              <StreetMetaAuthor />
+              <StreetMetaDate />
+            </>
+            )}
+      </div>
+
+      {!app.layoutMode && (
+        <div className="street-metadata-phases">
+          {street?.phases?.length > 1 &&
             street.phases.map((phase) => {
               return (
                 <div
@@ -69,10 +104,10 @@ function StreetMeta (props) {
                 </div>
               )
             })}
-          </div>
-        )}
-      </>
-      )
+        </div>
+      )}
+    </>
+  )
 }
 
 export default StreetMeta
