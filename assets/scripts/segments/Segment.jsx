@@ -14,9 +14,11 @@ import {
   removeSegmentAction,
   clearSegmentsAction
 } from '../store/actions/street'
+import store from '../store'
+import { setAppFlags } from '../store/slices/app'
 import { addToast } from '../store/slices/toasts'
 import { getSegmentCapacity } from './capacity'
-import { getLocaleSegmentName } from './view'
+import { getLocaleSegmentName, getSegmentEl } from './view'
 import SegmentCanvas from './SegmentCanvas'
 import SegmentDragHandles from './SegmentDragHandles'
 import SegmentLabelContainer from './SegmentLabelContainer'
@@ -56,6 +58,7 @@ export class Segment extends React.Component {
     segmentPos: PropTypes.number,
     updateSegmentData: PropTypes.func,
     updatePerspective: PropTypes.func,
+    phase: PropTypes.object,
 
     // Provided by store
     locale: PropTypes.string,
@@ -113,7 +116,11 @@ export class Segment extends React.Component {
 
     this.initialRender = false
 
-    if (wasDragging && this.props.activeSegment === this.props.dataNo) {
+    if (
+      wasDragging &&
+      this.props.activeSegment === this.props.dataNo
+      // this.props.activeLayoutPhase.id === this.props.phase.id
+    ) {
       infoBubble.considerShowing(
         false,
         this.streetSegment,
@@ -181,7 +188,11 @@ export class Segment extends React.Component {
       return
     }
 
-    this.props.setActiveSegment(this.props.dataNo)
+    if (!this.props.layoutMode) this.props.setActiveSegment(this.props.dataNo)
+    else {
+      store.dispatch(setAppFlags({ activeLayoutPhase: this.props.phase }))
+      getSegmentEl(this.props.dataNo).classList.add('hover')
+    }
 
     document.addEventListener('keydown', this.handleKeyDown)
     infoBubble.considerShowing(
@@ -192,6 +203,7 @@ export class Segment extends React.Component {
   }
 
   handleSegmentMouseLeave = () => {
+    getSegmentEl(this.props.dataNo).classList.remove('hover')
     document.removeEventListener('keydown', this.handleKeyDown)
     infoBubble.dontConsiderShowing()
   }

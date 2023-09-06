@@ -197,6 +197,7 @@ export class StreetEditable extends React.Component {
             segmentPos={segmentPos}
             updateSegmentData={this.updateSegmentData}
             updatePerspective={this.props.updatePerspective}
+            phase={this.props.phase}
           />
         </CSSTransition>
       )
@@ -214,6 +215,7 @@ export class StreetEditable extends React.Component {
     // TODO: Fix duplicate IDs by adapting the logic that uses the ID
     return connectDropTarget(
       <div
+        data-phase={this.props.phase ? this.props.phase.id : null}
         id="street-section-editable"
         className="street-section-editable"
         key={this.props.street.id}
