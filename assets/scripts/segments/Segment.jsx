@@ -191,7 +191,8 @@ export class Segment extends React.Component {
     if (!this.props.layoutMode) this.props.setActiveSegment(this.props.dataNo)
     else {
       store.dispatch(setAppFlags({ activeLayoutPhase: this.props.phase }))
-      getSegmentEl(this.props.dataNo).classList.add('hover')
+      const segment = getSegmentEl(this.props.dataNo)
+      segment.classList.add('hover', 'hover-layout')
     }
 
     document.addEventListener('keydown', this.handleKeyDown)

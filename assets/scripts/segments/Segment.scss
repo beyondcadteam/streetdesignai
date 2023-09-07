@@ -48,6 +48,11 @@ body.immediate-segment-resize .segment {
   pointer-events: none;
 }
 
+.segment.hover.hover-layout .hover-bk {
+  top: 170px;
+  height: 415px;
+}
+
 body:not(.read-only) .segment {
   cursor: grab;
 }
