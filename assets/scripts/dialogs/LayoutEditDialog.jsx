@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { saveStreetToServer } from '../streets/xhr'
 import { updateStreetData } from '../store/slices/street'
+import { setAppFlags } from '../store/slices/app'
 import Button from '../ui/Button'
 import Dialog from './Dialog'
 import './LayoutEditDialog.scss'
-import { setAppFlags } from '../store/slices/app'
 
 const LayoutEditDialog = (props) => {
   const { register, handleSubmit } = useForm({

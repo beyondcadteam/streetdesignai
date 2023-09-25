@@ -350,6 +350,8 @@ export class Segment extends React.Component {
       classNames.push('hover', 'show-drag-handles')
     }
 
+    if (this.props.layoutMode) classNames.push('layout-segment')
+
     // Palette segments don't have `segment` defined
     if (segment && segment.warnings) {
       if (

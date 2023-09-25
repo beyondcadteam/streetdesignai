@@ -12,6 +12,9 @@ import {
   TrashIcon
 } from '@primer/octicons-react'
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faRandom } from '@fortawesome/free-solid-svg-icons'
+
 import { saveStreetToServer } from '../streets/xhr'
 import Icon from '../ui/Icon'
 // import ExternalLink from '../ui/ExternalLink'
@@ -19,8 +22,10 @@ import Icon from '../ui/Icon'
 import { updateStreetData } from '../store/slices/street'
 import { setAppFlags } from '../store/slices/app'
 import { showDialog } from '../store/slices/dialogs'
-import Menu from './Menu'
 import './PhasesMenu.scss'
+import AutoMix from '../../../app/lib/automix.mjs'
+import { segmentsChanged } from '../segments/view'
+import Menu from './Menu'
 
 function PhasesMenu (props) {
   const dispatch = useDispatch()
@@ -161,11 +166,15 @@ function PhasesMenu (props) {
   }
 
   function deletePhase (index) {
+    const item = street.phases[index]
     const newItems = [...street.phases]
     newItems.splice(index, 1)
-    dispatch(updateStreetData({ phases: newItems }))
-    if (app.activePhase === index) {
-      dispatch(setAppFlags({ activePhase: newItems[index - 1] }))
+    const newPhase = newItems[index - 1]
+    if (app.activePhase.id === item.id) {
+      dispatch(updateStreetData({ ...newPhase.street, phases: newItems }))
+      dispatch(setAppFlags({ activePhase: newPhase }))
+    } else {
+      dispatch(updateStreetData({ phases: newItems }))
     }
   }
 
@@ -200,6 +209,48 @@ function PhasesMenu (props) {
     setTimeout(() => {
       document.querySelector('#phase-new-link').focus()
     }, 50)
+  }
+
+  function createAutomix () {
+    if (street?.phases?.length >= process.env.PHASE_LIMIT) return
+    const newItems = [...street.phases].map((phase) => ({
+      ...phase,
+      street: { ...phase.street, phases: null }
+    }))
+
+    const streetName =
+      street.name ||
+      intl.formatMessage({
+        id: 'street.default-name',
+        defaultMessage: 'Unnamed St'
+      })
+
+    const clonedStreet = JSON.parse(JSON.stringify({ ...street, phases: null }))
+
+    try {
+      const automix = new AutoMix(clonedStreet)
+      // automix.create()
+      automix.randomize()
+      // automix.shuffle()
+      console.log(automix)
+      const environment = automix.street.environment
+      const segments = automix.street.segments
+
+      // ========================================================================
+
+      newItems.push({
+        id: street.id + `:phase-${Date.now().toString(36).slice(2)}`,
+        name: `${streetName} : AutoMix Phase ${newItems.length + 1}`,
+        street: { ...clonedStreet, segments, environment }
+      })
+
+      dispatch(updateStreetData({ segments, environment, phases: newItems }))
+      dispatch(setAppFlags({ activePhase: newItems[newItems.length - 1] }))
+      segmentsChanged()
+    } catch (err) {
+      console.error(err)
+      window.alert(err.message)
+    }
   }
 
   return (
@@ -245,6 +296,26 @@ function PhasesMenu (props) {
           }}
         >
           <LinkIcon size={20} />
+        </span>
+
+        <span
+          title={intl.formatMessage({
+            id: 'phases.createAutomix',
+            defaultMessage: 'Create AutoMix'
+          })}
+          onClick={createAutomix}
+          style={{
+            display:
+              street?.phases?.length === Number(process.env.PHASE_LIMIT || '8')
+                ? 'none'
+                : 'inline',
+            cursor: 'pointer',
+            marginLeft: '1rem',
+            top: '-3px',
+            position: 'relative'
+          }}
+        >
+          <FontAwesomeIcon icon={faRandom} />
         </span>
 
         <hr />

@@ -1,23 +1,23 @@
 @use "sass:color";
 @import "../../styles/variables";
 
-.phaseRename-dialog {
+.phase-rename-dialog {
   min-width: 400px;
   max-width: 520px;
 }
 
-.phaseRename-dialog label {
+.phase-rename-dialog label {
   display: block;
   font-weight: 700;
   font-size: 1.2em;
   margin-bottom: 0.25em;
 }
 
-.phaseRename-dialog form {
+.phase-rename-dialog form {
   margin-top: 1.5em;
 }
 
-.phaseRename-dialog input {
+.phase-rename-dialog input {
   display: block;
 
   /* Reusing styles from .sign-in-input */

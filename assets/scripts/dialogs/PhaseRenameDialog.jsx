@@ -40,7 +40,7 @@ const PhaseRenameDialog = (props) => {
     <Dialog>
       {(closeDialog) => {
         return (
-          <div className="phaseRename-dialog">
+          <div className="phase-rename-dialog">
             <header>
               <h1>
                 <FormattedMessage

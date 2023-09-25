@@ -125,7 +125,7 @@ const PhaseImportDialog = (props) => {
     <Dialog>
       {(closeDialog) => {
         return (
-          <div className="phaseImport-dialog">
+          <div className="phase-import-dialog">
             <header>
               <h1>
                 <FormattedMessage

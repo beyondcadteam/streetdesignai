@@ -53,7 +53,7 @@ body.immediate-segment-resize .segment {
   height: 415px;
 }
 
-body:not(.read-only) .segment {
+body:not(.read-only) .segment:not(.layout-segment) {
   cursor: grab;
 }
 

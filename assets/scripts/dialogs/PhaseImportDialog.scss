@@ -1,23 +1,23 @@
 @use "sass:color";
 @import "../../styles/variables";
 
-.phaseImport-dialog {
+.phase-import-dialog {
   min-width: 400px;
   max-width: 520px;
 }
 
-.phaseImport-dialog label {
+.phase-import-dialog label {
   display: block;
   font-weight: 700;
   font-size: 1.2em;
   margin-bottom: 0.25em;
 }
 
-.phaseImport-dialog form {
+.phase-import-dialog form {
   margin-top: 1.5em;
 }
 
-.phaseImport-dialog input {
+.phase-import-dialog input {
   display: block;
 
   /* Reusing styles from .sign-in-input */
