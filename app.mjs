@@ -127,6 +127,7 @@ const csp = {
     fontSrc: ["'self'", 'fonts.gstatic.com'],
     connectSrc: [
       "'self'",
+      'localhost:*',
       process.env.PELIAS_HOST_NAME,
       'syndication.twitter.com',
       'sentry.io',

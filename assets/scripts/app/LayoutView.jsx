@@ -41,7 +41,7 @@ export default function LayoutView () {
         )
       })}
 
-      <SkyContainer height={skyHeight} />
+      <SkyContainer height={skyHeight} environment="day" />
 
       <div id="layout-view-layouts-menu">
         <div id="layout-view-layouts-menu-header">

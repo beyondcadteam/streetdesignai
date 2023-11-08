@@ -13,7 +13,7 @@ import {
 } from '@primer/octicons-react'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faRandom } from '@fortawesome/free-solid-svg-icons'
+import { faRandom, faRoad } from '@fortawesome/free-solid-svg-icons'
 
 import { saveStreetToServer } from '../streets/xhr'
 import Icon from '../ui/Icon'
@@ -23,7 +23,7 @@ import { updateStreetData } from '../store/slices/street'
 import { setAppFlags } from '../store/slices/app'
 import { showDialog } from '../store/slices/dialogs'
 import './PhasesMenu.scss'
-import AutoMix from '../../../app/lib/automix.mjs'
+import AutoMix from '../../../app/lib/automix/automix.mjs'
 import { segmentsChanged } from '../segments/view'
 import Menu from './Menu'
 
@@ -211,7 +211,7 @@ function PhasesMenu (props) {
     }, 50)
   }
 
-  function createAutomix () {
+  async function createAutomix (type = 'variants') {
     if (street?.phases?.length >= process.env.PHASE_LIMIT) return
     const newItems = [...street.phases].map((phase) => ({
       ...phase,
@@ -229,18 +229,35 @@ function PhasesMenu (props) {
 
     try {
       const automix = new AutoMix(clonedStreet)
-      // automix.create()
-      automix.randomize()
-      // automix.shuffle()
-      console.log(automix)
+
+      // DEV: Check failure rate of random street generation
+      // if (type === 'new') {
+      //   let failures = 0
+      //   let loop = 0
+      //   while (loop < 100) {
+      //     loop++
+      //     try {
+      //       await automix.create()
+      //     } catch (err) {
+      //       failures++
+      //       console.error(err, { failures })
+      //     }
+      //   }
+      //   console.log({ failures, rate: failures / loop })
+      // }
+
+      if (type === 'new') automix.create()
+      if (type === 'variants') automix.mix()
+
+      // console.log(automix)
       const environment = automix.street.environment
       const segments = automix.street.segments
 
-      // ========================================================================
-
       newItems.push({
         id: street.id + `:phase-${Date.now().toString(36).slice(2)}`,
-        name: `${streetName} : AutoMix Phase ${newItems.length + 1}`,
+        name: `${streetName} : AutoMix ${type === 'new' ? 'Street' : 'Phase'} ${
+          newItems.length + 1
+        }`,
         street: { ...clonedStreet, segments, environment }
       })
 
@@ -301,9 +318,9 @@ function PhasesMenu (props) {
         <span
           title={intl.formatMessage({
             id: 'phases.createAutomix',
-            defaultMessage: 'Create AutoMix'
+            defaultMessage: 'Create an AutoMix Phase'
           })}
-          onClick={createAutomix}
+          onClick={() => createAutomix('variants')}
           style={{
             display:
               street?.phases?.length === Number(process.env.PHASE_LIMIT || '8')
@@ -316,6 +333,26 @@ function PhasesMenu (props) {
           }}
         >
           <FontAwesomeIcon icon={faRandom} />
+        </span>
+
+        <span
+          title={intl.formatMessage({
+            id: 'phases.generateRandomStreet',
+            defaultMessage: 'Generate a new AutoMix Street'
+          })}
+          onClick={() => createAutomix('new')}
+          style={{
+            display:
+              street?.phases?.length === Number(process.env.PHASE_LIMIT || '8')
+                ? 'none'
+                : 'inline',
+            cursor: 'pointer',
+            marginLeft: '1rem',
+            top: '-3px',
+            position: 'relative'
+          }}
+        >
+          <FontAwesomeIcon icon={faRoad} />
         </span>
 
         <hr />

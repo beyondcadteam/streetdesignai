@@ -17,6 +17,7 @@ import SegmentDragLayer from '../segments/SegmentDragLayer'
 import DebugHoverPolygon from '../info_bubble/DebugHoverPolygon'
 import ToastContainer from '../ui/Toasts/ToastContainer'
 // import SentimentSurveyContainer from '../sentiment/SentimentSurveyContainer'
+import { recalculateWidth } from '../streets/width'
 import { getInitialFlags } from '../store/slices/flags'
 import DebugInfo from './DebugInfo'
 import BlockingShield from './BlockingShield'
@@ -54,6 +55,53 @@ function App () {
     })
 
     init()
+
+    // Add hacky Automix training data labeling
+    window.validateTrainingData = async () => {
+      const trainingServer = 'http://localhost:9292'
+
+      let page = 1
+      while (true) {
+        const response = await fetch(`${trainingServer}/unvalidated/1`)
+        const data = await response.json()
+        console.log({ page, data })
+        if (data?.length === 0) break
+
+        const streets = data
+          .map((street) => ({ ...street, ...recalculateWidth(street) }))
+          .map((street) => {
+            const valid = street.segments.every((segment) => {
+              return segment.warnings.every((warning) => !warning)
+            })
+
+            return {
+              ...street,
+              valid
+            }
+          })
+
+        console.group(`Page ${page}`)
+
+        console.log(
+          'Valid streets:',
+          streets.filter((street) => street.valid).length
+        )
+        console.log(
+          'Invalid streets:',
+          streets.filter((street) => !street.valid).length
+        )
+        await fetch(`${trainingServer}/`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ streets })
+        })
+
+        console.groupEnd()
+        page++
+      }
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // After loading, do ancient DOM stuff
