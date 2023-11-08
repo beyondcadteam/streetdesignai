@@ -128,6 +128,7 @@ const csp = {
     connectSrc: [
       "'self'",
       'localhost:*',
+      'streetmix.net',
       process.env.PELIAS_HOST_NAME,
       'syndication.twitter.com',
       'sentry.io',

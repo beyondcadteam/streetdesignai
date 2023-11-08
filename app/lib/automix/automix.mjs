@@ -90,11 +90,19 @@ export default class AutoMix {
     let variantString = this.weightedRandom(matchWeights)
 
     // Upgrade old variant strings, hoping for the best; refactor this later
-    if (type === 'bike-lane' && variantString?.split('|').length === 2) { variantString = variantString + '|road' }
-    if (type === 'bus-lane' && variantString?.split('|').length === 2) { variantString = variantString + '|typical' }
-    if (type === 'food-truck' && !['left', 'right'].includes(variantString)) { variantString = 'right' }
+    if (type === 'bike-lane' && variantString?.split('|').length === 2) {
+      variantString = variantString + '|road'
+    }
+    if (type === 'bus-lane' && variantString?.split('|').length === 2) {
+      variantString = variantString + '|typical'
+    }
+    if (type === 'food-truck' && !['left', 'right'].includes(variantString)) {
+      variantString = 'right'
+    }
 
-    if (type === 'bike-lane' && variantString?.includes('colored')) { variantString = variantString.replace('colored', 'green') }
+    if (type === 'bike-lane' && variantString?.includes('colored')) {
+      variantString = variantString.replace('colored', 'green')
+    }
 
     if (!variantString) {
       const variantStats = this.rules.stats.variantStats
@@ -116,7 +124,7 @@ export default class AutoMix {
 
   mix (loop = 0) {
     console.time('AutoMix: Mix Variants')
-    const environments = ['day', 'night', 'dawn', 'dusk']
+    const environments = ['day', 'night', 'twilight', 'dawn', 'dusk', 'fog']
     this.street.environment =
       environments[Math.floor(Math.random() * environments.length)]
 
@@ -193,7 +201,9 @@ export default class AutoMix {
         .map((segment) => `${segment.type}:${segment.variantString}`)
         .join('!')
     ) {
-      if (loop > MAX_LOOPS) { throw new Error('This street layout does not allow for any variation') }
+      if (loop > MAX_LOOPS) {
+        throw new Error('This street layout does not allow for any variation')
+      }
       console.warn('AutoMix generated an identical layout, trying again')
       return this.mix(++loop)
     }
@@ -203,7 +213,9 @@ export default class AutoMix {
         segment.warnings.some((warning) => warning)
       )
     ) {
-      if (loop > MAX_LOOPS) { throw new Error('This street layout does not allow for any variation') }
+      if (loop > MAX_LOOPS) {
+        throw new Error('This street layout does not allow for any variation')
+      }
       console.warn('AutoMix generated an invalid layout, trying again')
       return this.mix(++loop)
     }
@@ -216,7 +228,7 @@ export default class AutoMix {
     let currentWidth = 0
     let loop = 0
 
-    const environments = ['day', 'night', 'dawn', 'dusk']
+    const environments = ['day', 'night', 'twilight', 'dawn', 'dusk', 'fog']
     this.street.environment =
       environments[Math.floor(Math.random() * environments.length)]
 
@@ -234,7 +246,9 @@ export default class AutoMix {
       let info = getSegmentInfo(segment.type)
       segment.width = info.defaultWidth
 
-      if (currentWidth + info.defaultWidth >= this.street.width) { isLastSegment = true }
+      if (currentWidth + info.defaultWidth >= this.street.width) {
+        isLastSegment = true
+      }
       if (currentWidth + info.defaultWidth > this.street.width) {
         const endStats = this.rules.stats.endStats
         const endWeights = Object.entries(endStats)
@@ -343,7 +357,9 @@ export default class AutoMix {
     // Check AutoMix Rules
     // ===================
     if (this.rules.start && this.street.segments.length === 0) {
-      if (!this.rules.start.includes(this.street.segments[0].type)) { return false }
+      if (!this.rules.start.includes(this.street.segments[0].type)) {
+        return false
+      }
     }
 
     if (this.rules.end && this.street.segments.length > 0) {
