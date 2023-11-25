@@ -1,12 +1,19 @@
+/**
+ * AutoMix Library
+ * StreetDesign.ai
+ * Beyondware.com
+ */
+
 import { nanoid } from 'nanoid'
 
-import SEGMENT_INFO from '../../../assets/scripts/segments/info.json'
 import { getSegmentInfo } from '../../../assets/scripts/segments/info'
-import { getVariantArray } from '../../../assets/scripts/segments/variant_utils'
+import {
+  getVariantArray,
+  getVariantString
+} from '../../../assets/scripts/segments/variant_utils'
 import { recalculateWidth } from '../../../assets/scripts/streets/width'
+import SEGMENT_INFO from '../../../assets/scripts/segments/info.json'
 import DefaultRules from './automix.rules.mjs'
-
-const MAX_LOOPS = 25
 
 export default class AutoMix {
   street = null
@@ -17,112 +24,151 @@ export default class AutoMix {
     this.rules = rules
   }
 
-  getVariant (type, variant) {
-    const info = getSegmentInfo(type)
-    return Object.keys(info.details).find(
-      (key) => info.details[key].name === variant
-    )
-  }
-
-  getSegment (type, variant) {
-    type = type ?? this.getRandomType()
-    variant = variant ?? this.getRandomVariant(type)
-    return { type, variant }
-  }
-
-  getRandomType () {
+  /**
+   * The main AutoMix function
+   * Mixes the street layout
+   */
+  mix (loop = 0) {
+    console.time('AutoMix: Mix')
     const types = Object.keys(SEGMENT_INFO)
+    const startHash = this.street.segments
+      .map((segment) => segment.type)
+      .join('!')
 
-    if (this.street.segments.length === 0) {
-      const startStats = this.rules.stats.startStats
-      const startWeights = Object.entries(startStats).map(
-        ([key, { count }]) => [key, count]
-      )
-      const type = this.weightedRandom(startWeights)
+    if (
+      (Math.random() > 1 - this.rules.chances.shrinkLamps ?? 0.8) ||
+      this.street.remainingWidth < 4
+    ) { this.shrinkLamps() }
 
-      if (!type) return types[Math.floor(Math.random() * types.length)]
-      else return type.split(':')[0]
-    } else {
-      const lastSegment = this.street.segments[this.street.segments.length - 1]
-      const lastSegmentTypeVariant = `${lastSegment.type}:${lastSegment.variantString}`
-      const ruleKeys = Object.keys(this.rules.stats.adjacencyStats)
-      const matchKeys = ruleKeys.filter(
-        (key) => key.split('->')[0] === lastSegmentTypeVariant
-      )
-      const matchWeights = matchKeys.map((key) => [
-        key.split('->')[1].split(':')[0],
-        this.rules.stats.adjacencyStats[key] ?? 0
-      ])
-      const nextType = this.weightedRandom(matchWeights)
+    if (
+      (Math.random() > 1 - this.rules.chances.shrinkDriveLanes ?? 0.8) ||
+      this.street.remainingWidth < 4
+    ) { this.shrinkDriveLanes() }
 
-      if (!nextType) return types[Math.floor(Math.random() * types.length)]
-      return nextType
+    const candidates = []
+    for (const type of types.sort(() => 0.5 - Math.random())) {
+      const info = getSegmentInfo(type)
+      if (
+        !info.rules?.minWidth ||
+        info.rules.minWidth > this.street.remainingWidth
+      ) { continue }
+      candidates.push(type)
     }
-  }
 
-  getRandomVariant (type) {
-    let lastSegment = this.street.segments[this.street.segments.length - 1]
+    if (candidates.length === 0) {
+      if (Math.random() > 1 - this.rules.chances.replaceSegment ?? 0.7) {
+        for (
+          let i = Math.floor(
+            Math.random() * this.rules.maxSegmentsReplaced ??
+              4 + this.rules.minSegmentsReplaced ??
+              2
+          );
+          i > 0;
+          i--
+        ) {
+          this.replaceSegment()
+        }
+      }
+    } else {
+      if (Math.random() > 1 - this.rules.chances.insertSegment ?? 0.5) { this.insertSegment(candidates) }
+    }
 
-    if (!lastSegment) {
-      const startStats = this.rules.stats.startStats
-      const startWeights = Object.entries(startStats)
-      const startType = this.weightedRandom(startWeights)
-      lastSegment = {
-        type: startType.split(':')[0],
-        variantString: startType.split(':')[1]
+    this.shrinkLamps()
+    this.expandSidewalks()
+
+    if (this.street.remainingWidth < 0) {
+      const segments = this.street.segments.filter(
+        (segment) => segment.type !== 'sidewalk'
+      )
+      const segmentsToShrink = segments.filter(
+        (segment) =>
+          segment.width - getSegmentInfo(segment.type).rules?.minWidth > 0
+      )
+      for (const segment of segmentsToShrink) { segment.width = getSegmentInfo(segment.type).rules?.minWidth }
+    }
+
+    this.street = { ...this.street, ...recalculateWidth(this.street) }
+
+    if (
+      this.street.segments.some((segment) =>
+        segment.warnings.some((warning) => warning)
+      )
+    ) {
+      const segments = this.street.segments.filter((segment) =>
+        segment.warnings.some((warning) => warning)
+      )
+      for (const segment of segments) {
+        const info = getSegmentInfo(segment.type)
+        segment.width = info.rules?.minWidth ?? info.defaultWidth
+        this.street = { ...this.street, ...recalculateWidth(this.street) }
+        if (
+          !this.street.segments.some((segment) =>
+            segment.warnings.some((warning) => warning)
+          )
+        ) { break }
+      }
+
+      if (
+        this.street.segments.some((segment) =>
+          segment.warnings.some((warning) => warning)
+        )
+      ) {
+        const firstSegmentWithWarning = this.street.segments.find((segment) =>
+          segment.warnings.some((warning) => warning)
+        )
+        const firstSegmentWithWarningIndex = this.street.segments.indexOf(
+          firstSegmentWithWarning
+        )
+        this.street.segments.splice(firstSegmentWithWarningIndex, 1)
+        this.street = { ...this.street, ...recalculateWidth(this.street) }
+        this.expandEnds()
       }
     }
 
-    const ruleKeys = Object.keys(this.rules.stats.adjacencyStats)
-    const matchKeys = ruleKeys
-      .filter(
-        (key) =>
-          key.split('->')[0] ===
-          `${lastSegment.type}:${lastSegment.variantString}`
+    if (this.street.remainingWidth > 0) this.expandEnds()
+
+    const endHash = this.street.segments
+      .map((segment) => segment.type)
+      .join('!')
+
+    if (startHash === endHash) {
+      if (loop > this.rules.maxLoops) {
+        throw new Error(
+          'AutoMix failed to generate a valid street layout; please try again or adjust your layout.'
+        )
+      }
+      console.warn(
+        'AutoMix generated an identical layout, trying again',
+        `(${loop})`
       )
-      .filter((key) => key.split('->')[1].split(':')[0] === type)
-
-    const matchWeights = matchKeys.map((key) => [
-      key.split('->')[1].split(':')[1],
-      this.rules.stats.adjacencyStats[key] ?? 0
-    ])
-
-    let variantString = this.weightedRandom(matchWeights)
-
-    // Upgrade old variant strings, hoping for the best; refactor this later
-    if (type === 'bike-lane' && variantString?.split('|').length === 2) {
-      variantString = variantString + '|road'
-    }
-    if (type === 'bus-lane' && variantString?.split('|').length === 2) {
-      variantString = variantString + '|typical'
-    }
-    if (type === 'food-truck' && !['left', 'right'].includes(variantString)) {
-      variantString = 'right'
-    }
-
-    if (type === 'bike-lane' && variantString?.includes('colored')) {
-      variantString = variantString.replace('colored', 'green')
+      return this.mix(++loop)
+    } else {
+      if (
+        this.street.segments.some((segment) =>
+          segment.warnings.some((warning) => warning)
+        )
+      ) {
+        if (loop > this.rules.maxLoops) {
+          throw new Error(
+            'AutoMix failed to generate a valid street layout; please try again or adjust your layout.'
+          )
+        }
+        console.warn(
+          'AutoMix generated an invalid layout, trying again',
+          `(${loop})`
+        )
+        return this.mix(++loop)
+      }
     }
 
-    if (!variantString) {
-      const variantStats = this.rules.stats.variantStats
-      const variantWeights = Object.entries(variantStats[type])
-      variantString = this.weightedRandom(variantWeights)
-    }
-    return variantString
+    console.timeEnd('AutoMix: Mix')
+    return this
   }
 
-  weightedRandom (items) {
-    const totalWeight = items.reduce((acc, [_, weight]) => acc + weight, 0)
-    const random = Math.random() * totalWeight
-    let weightSum = 0
-    for (const [item, weight] of items) {
-      weightSum += weight
-      if (random < weightSum) return item
-    }
-  }
-
-  mix (loop = 0) {
+  /**
+   * Mixes the variants of the street's segments
+   */
+  mixVariants (loop = 0) {
     console.time('AutoMix: Mix Variants')
     const environments = ['day', 'night', 'twilight', 'dawn', 'dusk', 'fog']
     this.street.environment =
@@ -201,10 +247,15 @@ export default class AutoMix {
         .map((segment) => `${segment.type}:${segment.variantString}`)
         .join('!')
     ) {
-      if (loop > MAX_LOOPS) {
-        throw new Error('This street layout does not allow for any variation')
+      if (loop > this.rules.maxLoops) {
+        throw new Error(
+          'AutoMix failed to generate a valid street layout; please try again or adjust your layout.'
+        )
       }
-      console.warn('AutoMix generated an identical layout, trying again')
+      console.warn(
+        'AutoMix generated an identical layout, trying again',
+        `(${loop})`
+      )
       return this.mix(++loop)
     }
 
@@ -213,16 +264,24 @@ export default class AutoMix {
         segment.warnings.some((warning) => warning)
       )
     ) {
-      if (loop > MAX_LOOPS) {
-        throw new Error('This street layout does not allow for any variation')
+      if (loop > this.rules.maxLoops) {
+        throw new Error(
+          'AutoMix failed to generate a valid street layout; please try again or adjust your layout.'
+        )
       }
-      console.warn('AutoMix generated an invalid layout, trying again')
+      console.warn(
+        'AutoMix generated an invalid layout, trying again',
+        `(${loop})`
+      )
       return this.mix(++loop)
     }
 
     return this
   }
 
+  /**
+   * Creates a new weighted random street layout
+   */
   create () {
     this.street.segments = []
     let currentWidth = 0
@@ -243,12 +302,14 @@ export default class AutoMix {
             this.rules.start[(this.rules.start.length * Math.random()) << 0]
           )
           : this.getSegment()
+
       let info = getSegmentInfo(segment.type)
       segment.width = info.defaultWidth
 
       if (currentWidth + info.defaultWidth >= this.street.width) {
         isLastSegment = true
       }
+
       if (currentWidth + info.defaultWidth > this.street.width) {
         const endStats = this.rules.stats.endStats
         const endWeights = Object.entries(endStats)
@@ -270,6 +331,7 @@ export default class AutoMix {
             (acc, segment) => acc + segment.width,
             0
           )
+
           const remainingWidth = this.street.width - currentWidth
 
           // expand the first and last segments to fill remaining width
@@ -312,6 +374,8 @@ export default class AutoMix {
         continue
       }
 
+      if (Array.isArray(segment.variant)) { segment.variant = getVariantString(segment.variant) }
+
       const newSegment = {
         id: nanoid(),
         type: segment.type,
@@ -337,25 +401,370 @@ export default class AutoMix {
 
     this.street = { ...this.street, ...recalculateWidth(this.street) }
 
-    // console.debug(`Created street with ${this.street.segments.length} segments in ${loop} loops`)
+    console.debug(
+      `Created street with ${this.street.segments.length} segments in ${loop} loops`
+    )
     console.timeEnd('AutoMix: New Street')
     return this
   }
 
-  validateSegment (segment) {
-    // Check Segment Rules
-    // ===================
-    const info = getSegmentInfo(segment.type)
-    if (info.rules?.minWidth > segment.width) return false
-    if (info.rules?.maxWidth < segment.width) return false
-    // ===================
+  /**
+   * Returns a random segment
+   * If type or variant are specified, returns a segment of that type or variant
+   * If neither are specified, returns a random segment
+   * If type is specified but variant is not, returns a random variant of that type
+   */
+  getSegment (type, variant) {
+    type = type ?? this.getRandomType()
+    variant = variant ?? this.getRandomVariant(type)
+    return { type, variant }
+  }
+
+  /**
+   * Returns a random segment type, weighted by the adjacency stats of the prior or initial segment
+   */
+  getRandomType () {
+    const types = Object.keys(SEGMENT_INFO)
+
+    if (this.street.segments.length === 0) {
+      const startStats = this.rules.stats.startStats
+      const startWeights = Object.entries(startStats).map(
+        ([key, { count }]) => [key, count]
+      )
+      const type = this.weightedRandom(startWeights)
+
+      if (!type) return types[Math.floor(Math.random() * types.length)]
+      else return type.split(':')[0]
+    } else {
+      const lastSegment = this.street.segments[this.street.segments.length - 1]
+      const lastSegmentTypeVariant = `${lastSegment.type}:${lastSegment.variantString}`
+      const ruleKeys = Object.keys(this.rules.stats.adjacencyStats)
+      const matchKeys = ruleKeys.filter(
+        (key) => key.split('->')[0] === lastSegmentTypeVariant
+      )
+
+      const matchWeights = matchKeys.map((key) => [
+        key.split('->')[1].split(':')[0],
+        this.rules.stats.adjacencyStats[key] ?? 0
+      ])
+
+      const nextType = this.weightedRandom(matchWeights)
+
+      if (!nextType) return types[Math.floor(Math.random() * types.length)]
+      return nextType
+    }
+  }
+
+  /**
+   * Returns a random segment variant based on the given type,
+   * weighted by the adjacency stats of the prior or initial segment
+   */
+  getRandomVariant (type) {
+    let lastSegment = this.street.segments[this.street.segments.length - 1]
+
+    if (!lastSegment) {
+      const startStats = this.rules.stats.startStats
+      const startWeights = Object.entries(startStats)
+      const startType = this.weightedRandom(startWeights)
+      lastSegment = {
+        type: startType.split(':')[0],
+        variantString: startType.split(':')[1]
+      }
+    }
+
+    const ruleKeys = Object.keys(this.rules.stats.adjacencyStats)
+    const matchKeys = ruleKeys
+      .filter(
+        (key) =>
+          key.split('->')[0] ===
+          `${lastSegment.type}:${lastSegment.variantString}`
+      )
+      .filter((key) => key.split('->')[1].split(':')[0] === type)
+
+    const matchWeights = matchKeys.map((key) => [
+      key.split('->')[1].split(':')[1],
+      this.rules.stats.adjacencyStats[key] ?? 0
+    ])
+
+    let [, variantString] = this.upgradeSegment(
+      type,
+      this.weightedRandom(matchWeights)
+    )
+
+    if (!variantString) {
+      const variantStats = this.rules.stats.variantStats
+      const variantWeights = Object.entries(variantStats[type])
+      variantString = this.upgradeSegment(
+        type,
+        this.weightedRandom(variantWeights)
+      )
+    }
+
+    return variantString
+  }
+
+  /**
+   * Returns a random item from an array of items, weighted by the item's weight
+   */
+  weightedRandom (items) {
+    const totalWeight = items.reduce((acc, [_, weight]) => acc + weight, 0)
+    const random = Math.random() * totalWeight
+    let weightSum = 0
+    for (const [item, weight] of items) {
+      weightSum += weight
+      if (random < weightSum) return item
+    }
+  }
+
+  /**
+   * Upgrades a segment type and variant to a valid type and variant,
+   * in case the chosen variant is from an old schema in the dataset
+   */
+  upgradeSegment (type, variant) {
+    if (type === 'bike-lane' && variant?.split('|').length === 2) {
+      variant = variant + '|road'
+    }
+    if (type === 'bus-lane' && variant?.split('|').length === 2) {
+      variant = variant + '|typical'
+    }
+    if (type === 'food-truck' && !['left', 'right'].includes(variant)) {
+      variant = 'right'
+    }
+
+    if (type === 'bike-lane' && variant?.includes('colored')) {
+      variant = variant.replace('colored', 'green')
+    }
+
+    return [type, variant]
+  }
+
+  /**
+   * Expands the first and last segments to fill remaining width
+   */
+  expandEnds () {
+    const firstSegment = this.street.segments[0]
+    const lastSegment = this.street.segments[this.street.segments.length - 1]
+    const firstSegmentWidth =
+      firstSegment.width + this.street.remainingWidth / 2
+    const lastSegmentWidth = lastSegment.width + this.street.remainingWidth / 2
+    firstSegment.width = firstSegmentWidth
+    lastSegment.width = lastSegmentWidth
+    this.street = { ...this.street, ...recalculateWidth(this.street) }
+  }
+
+  /**
+   * Expands sidewalks to fill remaining width
+   */
+  expandSidewalks () {
+    const sidewalks = this.street.segments.filter(
+      (segment) => segment.type === 'sidewalk'
+    )
+    const remainingWidth = this.street.remainingWidth / sidewalks.length
+    if (remainingWidth < 0) return false
+
+    for (const sidewalk of sidewalks) {
+      if (sidewalk.width + remainingWidth > this.street.width * 0.3) {
+        sidewalk.width = this.street.width * 0.3
+        continue
+      } else {
+        sidewalk.width += remainingWidth
+      }
+    }
+
+    this.street = { ...this.street, ...recalculateWidth(this.street) }
+  }
+
+  /**
+   * Shrinks drive lanes to gain extra space
+   */
+  shrinkDriveLanes () {
+    const driveLaneInfo = getSegmentInfo('drive-lane')
+    const driveLanes = this.street.segments.filter(
+      (segment) => segment.type === 'drive-lane'
+    )
+    const maxDriveLaneWidthDifference =
+      driveLanes[0]?.width - driveLaneInfo.rules.minWidth
+    const driveLaneWidthDifference = Math.floor(
+      Math.random() * maxDriveLaneWidthDifference + 1
+    )
+
+    for (const lane of driveLanes) {
+      if (lane.width > driveLaneInfo.rules.minWidth) {
+        lane.width -= driveLaneWidthDifference
+      }
+    }
+
+    this.street = { ...this.street, ...recalculateWidth(this.street) }
+  }
+
+  /**
+   * Shrinks lamps to gain extra space
+   */
+  shrinkLamps () {
+    const lampInfo = getSegmentInfo('sidewalk-lamp')
+    const lamps = this.street.segments.filter(
+      (segment) => segment.type === 'sidewalk-lamp'
+    )
+
+    for (const lamp of lamps) {
+      lamp.width = lampInfo.defaultWidth
+    }
+
+    this.street = { ...this.street, ...recalculateWidth(this.street) }
+  }
+
+  /**
+   * Replaces a random segment with a new segment, weighted by the adjacency stats
+   */
+  replaceSegment (
+    segmentToReplace = this.street.segments[
+      Math.floor(Math.random() * this.street.segments.length)
+    ]
+  ) {
+    const priorSegment =
+      this.street.segments[this.street.segments.indexOf(segmentToReplace) - 1]
+    const isLastSegment =
+      this.street.segments.indexOf(segmentToReplace) ===
+      this.street.segments.length - 1
+    const isLastDriveLane =
+      segmentToReplace.type === 'drive-lane' &&
+      this.street.segments.filter((segment) => segment.type === 'drive-lane')
+        .length === 1
+
+    if (!priorSegment || isLastSegment || isLastDriveLane) return false
+    if (segmentToReplace.type === 'sidewalk') return false
+
+    const ruleKeys = Object.keys(this.rules.stats.adjacencyStats)
+    const matchKeys = ruleKeys
+      .filter((key) => key.split('->')[0].split(':')[0] === priorSegment.type)
+      .filter(
+        (key) => key.split('->')[1].split(':')[0] !== segmentToReplace.type
+      )
+
+    const matchWeights = matchKeys.map((key) => [
+      key.split('->')[1],
+      this.rules.stats.adjacencyStats[key] ?? 0
+    ])
+
+    const nextRule = this.weightedRandom(matchWeights)
+    if (!nextRule) return false
+
+    const parts = nextRule.split(':')
+    const [type, variant] = this.upgradeSegment(parts[0], parts[1])
+
+    let elevation = segmentToReplace.elevation
+    const segmentsOfType = this.street.segments.filter(
+      (segment) => segment.type === type
+    )
+    if (segmentsOfType.length > 0) elevation = segmentsOfType[0].elevation
+
+    if (/^sidewalk/.test(type)) {
+      const sidewalks = this.street.segments.filter(
+        (segment) => segment.type === 'sidewalk'
+      )
+      if (sidewalks.length > 0) elevation = sidewalks[0].elevation
+    }
+
+    if (/transit-shelter/.test(type)) {
+      const sidewalks = this.street.segments.filter(
+        (segment) => segment.type === 'sidewalk'
+      )
+      if (sidewalks.length > 0) elevation = sidewalks[0].elevation
+    }
+
+    if (segmentToReplace.variantString.includes('inbound')) { variant.replace('outbound', 'inbound') }
+    if (segmentToReplace.variantString.includes('outbound')) { variant.replace('inbound', 'outbound') }
+
+    const id = nanoid()
+    const info = getSegmentInfo(type)
+    const segment = {
+      id,
+      type,
+      elevation,
+      label: info.name,
+      variantString: variant,
+      variant: getVariantArray(type, variant),
+      width: info.rules?.minWidth || segmentToReplace.width
+    }
+
+    if (this.validateSegment(segment)) {
+      const nextIndex = this.street.segments.indexOf(segmentToReplace)
+      this.street.segments.splice(nextIndex, 1, segment)
+      this.street = { ...this.street, ...recalculateWidth(this.street) }
+    } else {
+      console.log('Invalid segment generated for replacement')
+    }
 
     return true
   }
 
+  /**
+   * Inserts a new segment after a random segment, weighted by the adjacency stats
+   */
+  insertSegment (candidates) {
+    const candidateWeights = Object.entries(this.rules.stats.adjacencyStats)
+      .filter(([key]) => candidates.includes(key.split('->')[0].split(':')[0]))
+      .filter(([key]) => key.split('->')[1].split(':')[0] !== 'sidewalk')
+
+    const candidate = this.weightedRandom(candidateWeights)
+    const parts = candidate.split('->')[1].split(':')
+    const [type, variant] = this.upgradeSegment(parts[0], parts[1])
+
+    const info = getSegmentInfo(type)
+    const segment = {
+      id: nanoid(),
+      type,
+      variantString: variant,
+      width: info.defaultWidth,
+      elevation: info.defaultElevation,
+      label: info.name,
+      variant: getVariantArray(type, variant)
+    }
+
+    if (this.validateSegment(segment)) {
+      const ruleKeys = Object.keys(this.rules.stats.adjacencyStats)
+      const matchKeys = ruleKeys
+        .filter((key) => key.split('->')[1].split(':')[0] === type)
+        .filter((key) => key.split('->')[0].split(':')[0] !== type)
+
+      const matchWeights = matchKeys.map((key) => [
+        key.split('->')[0].split(':')[0],
+        this.rules.stats.adjacencyStats[key] ?? 0
+      ])
+
+      const nextType = this.weightedRandom(matchWeights)
+      const nextSegment = this.street.segments.find(
+        (segment) => segment.type === nextType
+      )
+      const nextIndex = this.street.segments.indexOf(nextSegment)
+
+      this.street.segments.splice(nextIndex, 0, segment)
+      this.street = { ...this.street, ...recalculateWidth(this.street) }
+    } else {
+      console.log('Invalid segment')
+    }
+  }
+
+  /**
+   * Validates an individual segment
+   */
+  validateSegment (segment) {
+    // Check Segment Rules
+    // =====================
+    const info = getSegmentInfo(segment.type)
+    if (info.rules?.minWidth > segment.width) return false
+    if (info.rules?.maxWidth < segment.width) return false
+    // =====================
+
+    return true
+  }
+
+  /**
+   * Validates the entire street
+   */
   validateStreet () {
     // Check AutoMix Rules
-    // ===================
+    // =====================
     if (this.rules.start && this.street.segments.length === 0) {
       if (!this.rules.start.includes(this.street.segments[0].type)) {
         return false
@@ -371,16 +780,16 @@ export default class AutoMix {
         return false
       }
     }
-    // ===================
+    // =====================
 
     // Check Segment Rules
-    // ===================
+    // =====================
     for (const segment of this.street.segments) {
       const info = getSegmentInfo(segment.type)
       if (info.rules?.minWidth > segment.width) return false
       if (info.rules?.maxWidth < segment.width) return false
     }
-    // ===================
+    // =====================
 
     return true
   }

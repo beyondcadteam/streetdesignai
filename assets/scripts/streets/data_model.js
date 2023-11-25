@@ -18,6 +18,7 @@ import {
 } from '../store/slices/street'
 import { resetUndoStack } from '../store/slices/undo'
 import store from '../store'
+import AutoMix from '../../../app/lib/automix/automix.mjs'
 import { getSegmentVariantInfo } from '../segments/info'
 import { DEFAULT_ENVIRONS } from './constants'
 import { createNewUndoIfNecessary, unifyUndoStack } from './undo_stack'
@@ -541,6 +542,39 @@ export function prepareEmptyStreet () {
   }
 
   store.dispatch(updateStreetData(emptyStreet))
+
+  if (isSignedIn()) {
+    updateLastStreetInfo()
+  }
+}
+
+export function prepareAutomixStreet () {
+  const units = store.getState().settings.units
+  const currentDate = new Date().toISOString()
+
+  const defaultStreet = {
+    units,
+    location: null,
+    name: null,
+    showAnalytics: true,
+    userUpdated: false,
+    editCount: 0,
+    width: normalizeStreetWidth(DEFAULT_STREET_WIDTH, units),
+    environment: DEFAULT_ENVIRONS,
+    leftBuildingHeight: DEFAULT_BUILDING_HEIGHT_LEFT,
+    leftBuildingVariant: DEFAULT_BUILDING_VARIANT_LEFT,
+    rightBuildingHeight: DEFAULT_BUILDING_HEIGHT_RIGHT,
+    rightBuildingVariant: DEFAULT_BUILDING_VARIANT_RIGHT,
+    schemaVersion: LATEST_SCHEMA_VERSION,
+    segments: fillDefaultSegments(units),
+    updatedAt: currentDate,
+    clientUpdatedAt: currentDate,
+    creatorId: (isSignedIn() && getSignInData().userId) || null
+  }
+
+  const automix = new AutoMix(defaultStreet)
+  const { street } = automix.create()
+  store.dispatch(updateStreetData(street))
 
   if (isSignedIn()) {
     updateLastStreetInfo()

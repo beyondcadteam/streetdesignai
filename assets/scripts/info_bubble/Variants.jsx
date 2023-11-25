@@ -114,6 +114,7 @@ function Variants (props) {
     switch (type) {
       case INFO_BUBBLE_TYPE_SEGMENT:
         handler = (event) => {
+          console.log({ position, set, selection })
           dispatch(changeSegmentVariant(position, set, selection))
           segmentsChanged()
         }

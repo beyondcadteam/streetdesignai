@@ -1,10 +1,15 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { FormattedMessage } from 'react-intl'
-import { NEW_STREET_DEFAULT, NEW_STREET_EMPTY } from '../../streets/constants'
+import {
+  NEW_STREET_AUTOMIX,
+  NEW_STREET_DEFAULT,
+  NEW_STREET_EMPTY
+} from '../../streets/constants'
 import {
   onNewStreetDefaultClick,
-  onNewStreetEmptyClick
+  onNewStreetEmptyClick,
+  onNewStreetAutomixClick
 } from '../../streets/creation'
 import { getLastStreet } from '../../store/actions/street'
 
@@ -22,6 +27,9 @@ function NewStreet (props) {
   switch (newStreetPreference) {
     case NEW_STREET_EMPTY:
       selectedNewStreetType = 'new-street-empty'
+      break
+    case NEW_STREET_AUTOMIX:
+      selectedNewStreetType = 'new-street-automix'
       break
     case NEW_STREET_DEFAULT:
     default:
@@ -106,6 +114,23 @@ function NewStreet (props) {
             </label>
           </li>
         )}
+
+        <li>
+          <input
+            type="radio"
+            name="new-street"
+            id="new-street-automix"
+            checked={state.selectedNewStreetType === 'new-street-automix'}
+            onChange={handleChangeNewStreetType}
+            onClick={onNewStreetAutomixClick}
+          />
+          <label htmlFor="new-street-automix">
+            <FormattedMessage
+              id="dialogs.new-street.automix"
+              defaultMessage="Start with an automix street"
+            />
+          </label>
+        </li>
       </ul>
     </div>
   )

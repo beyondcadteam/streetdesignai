@@ -129,6 +129,7 @@ const csp = {
       "'self'",
       'localhost:*',
       'streetmix.net',
+      'streetdesign.beyondware.com',
       process.env.PELIAS_HOST_NAME,
       'syndication.twitter.com',
       'sentry.io',

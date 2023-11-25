@@ -335,25 +335,28 @@ function PhasesMenu (props) {
           <FontAwesomeIcon icon={faRandom} />
         </span>
 
-        <span
-          title={intl.formatMessage({
-            id: 'phases.generateRandomStreet',
-            defaultMessage: 'Generate a new AutoMix Street'
-          })}
-          onClick={() => createAutomix('new')}
-          style={{
-            display:
-              street?.phases?.length === Number(process.env.PHASE_LIMIT || '8')
-                ? 'none'
-                : 'inline',
-            cursor: 'pointer',
-            marginLeft: '1rem',
-            top: '-3px',
-            position: 'relative'
-          }}
-        >
-          <FontAwesomeIcon icon={faRoad} />
-        </span>
+        {process.env.AUTOMIX_ENABLE_RANDOM_PHASES === 'true' && (
+          <span
+            title={intl.formatMessage({
+              id: 'phases.generateRandomStreet',
+              defaultMessage: 'Generate a new AutoMix Street'
+            })}
+            onClick={() => createAutomix('new')}
+            style={{
+              display:
+                street?.phases?.length ===
+                Number(process.env.PHASE_LIMIT || '8')
+                  ? 'none'
+                  : 'inline',
+              cursor: 'pointer',
+              marginLeft: '1rem',
+              top: '-3px',
+              position: 'relative'
+            }}
+          >
+            <FontAwesomeIcon icon={faRoad} />
+          </span>
+        )}
 
         <hr />
 

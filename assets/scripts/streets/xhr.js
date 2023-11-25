@@ -33,7 +33,7 @@ import {
 import { addToast } from '../store/slices/toasts'
 import { resetUndoStack, replaceUndoStack } from '../store/slices/undo'
 import { makeDefaultStreet } from './creation'
-import { NEW_STREET_EMPTY } from './constants'
+import { NEW_STREET_AUTOMIX, NEW_STREET_EMPTY } from './constants'
 import {
   prepareEmptyStreet,
   prepareDefaultStreet,
@@ -43,7 +43,8 @@ import {
   setStreetCreatorId,
   setUpdateTimeToNow,
   setLastStreet,
-  setIgnoreStreetChanges
+  setIgnoreStreetChanges,
+  prepareAutomixStreet
 } from './data_model'
 import {
   getRemixOnFirstEdit,
@@ -74,6 +75,8 @@ export async function createNewStreetOnServer () {
 
   if (settings.newStreetPreference === NEW_STREET_EMPTY) {
     prepareEmptyStreet()
+  } else if (settings.newStreetPreference === NEW_STREET_AUTOMIX) {
+    prepareAutomixStreet()
   } else {
     prepareDefaultStreet()
   }

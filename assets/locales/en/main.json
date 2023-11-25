@@ -207,7 +207,8 @@
       "heading": "Here’s your new street.",
       "default": "Start with an example street",
       "empty": "Start with an empty street",
-      "last": "Start with a copy of last street"
+      "last": "Start with a copy of last street",
+      "automix": "Start with a random AutoMix street"
     },
     "about": {
       "heading": "About Street Design AI.",

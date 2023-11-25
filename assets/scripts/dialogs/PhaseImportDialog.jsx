@@ -10,6 +10,7 @@ import {
 } from '../streets/width'
 import { setAppFlags } from '../store/slices/app'
 import { updateStreetData } from '../store/slices/street'
+import { updateToLatestSchemaVersion } from '../streets/data_model'
 import Button from '../ui/Button'
 import Dialog from './Dialog'
 import './PhaseImportDialog.scss'
@@ -21,37 +22,6 @@ const PhaseImportDialog = (props) => {
 
   const dispatch = useDispatch()
   const street = useSelector((state) => state.street)
-
-  const compatibilityUpgrade = (segments) => {
-    const upgrade = (segment) => {
-      let variantString = segment.variantString
-
-      switch (segment.type) {
-        case 'bus-lane':
-          if (variantString?.split('|').length === 2) {
-            variantString += '|typical'
-          }
-          break
-        case 'bike-lane':
-          if (variantString?.includes('colored')) {
-            variantString = variantString.replace('colored', 'green')
-          }
-          if (variantString?.split('|').length === 2) {
-            variantString = variantString + '|road'
-          }
-          break
-      }
-
-      return {
-        ...segment,
-        variantString,
-        id: segment.id || uuidv4(),
-        elevation: segment.elevation || 1
-      }
-    }
-
-    return segments.map(upgrade)
-  }
 
   const onSubmit = async ({ link }, closeDialog) => {
     try {
@@ -72,6 +42,7 @@ const PhaseImportDialog = (props) => {
         rightBuildingHeight,
         rightBuildingVariant,
         segments,
+        schemaVersion,
         showAnalytics,
         units,
         width
@@ -80,26 +51,30 @@ const PhaseImportDialog = (props) => {
       const occupiedWidth = calculateOccupiedWidth(segments)
       const remainingWidth = calculateRemainingWidth(width, occupiedWidth)
 
+      const newStreet = {
+        name: street.name || name,
+        namespacedId: street.namespacedId,
+        environment: environment || 'day',
+        remainingWidth,
+        occupiedWidth,
+        leftBuildingHeight,
+        leftBuildingVariant,
+        location,
+        rightBuildingHeight,
+        rightBuildingVariant,
+        schemaVersion,
+        segments,
+        showAnalytics,
+        units,
+        width
+      }
+
+      updateToLatestSchemaVersion(newStreet)
+
       const newPhase = {
         id: uuidv4(),
         name: name || `Imported Phase (${streetNamespace})`,
-        street: {
-          name: street.name || name,
-          namespacedId: street.namespacedId,
-          environment: environment || 'day',
-          remainingWidth,
-          occupiedWidth,
-          leftBuildingHeight,
-          leftBuildingVariant,
-          location,
-          rightBuildingHeight,
-          rightBuildingVariant,
-          schemaVersion: 27,
-          segments: compatibilityUpgrade(segments),
-          showAnalytics,
-          units,
-          width
-        }
+        street: newStreet
       }
 
       const cleanPhases = street.phases.map((phase) => ({
