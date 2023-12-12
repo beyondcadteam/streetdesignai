@@ -169,10 +169,11 @@ function PhasesMenu (props) {
     const item = street.phases[index]
     const newItems = [...street.phases]
     newItems.splice(index, 1)
-    const newPhase = newItems[index - 1]
+    const newActivePhase = newItems[index - 1] || newItems[0]
+
     if (app.activePhase.id === item.id) {
-      dispatch(updateStreetData({ ...newPhase.street, phases: newItems }))
-      dispatch(setAppFlags({ activePhase: newPhase }))
+      dispatch(updateStreetData({ ...newActivePhase.street, phases: newItems }))
+      dispatch(setAppFlags({ activePhase: newActivePhase }))
     } else {
       dispatch(updateStreetData({ phases: newItems }))
     }
