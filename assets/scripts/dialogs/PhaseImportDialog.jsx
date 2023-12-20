@@ -16,6 +16,9 @@ import Dialog from './Dialog'
 import './PhaseImportDialog.scss'
 
 const PhaseImportDialog = (props) => {
+  const [importPhases, setImportPhases] = React.useState([])
+  const [availablePhases, setAvailablePhases] = React.useState([])
+
   const { register, handleSubmit } = useForm({
     shouldUseNativeValidation: true
   })
@@ -26,73 +29,166 @@ const PhaseImportDialog = (props) => {
   const onSubmit = async ({ link }, closeDialog) => {
     try {
       const url = new URL(link)
-      const streetNamespace = url.pathname.split('/')[2]
-      const apiUrl = `${url.origin}/api/v1/streets?namespacedId=${streetNamespace}`
+      const isBeyond = ['beyondware.com', 'beyondcad.com'].includes(url.host)
+
+      let streetNamespace = url.pathname.split('/')[2]
+      let apiUrl = `${url.origin}/api/v1/streets?namespacedId=${streetNamespace}`
+
+      if (isBeyond) {
+        streetNamespace = url.searchParams.get('street')
+        apiUrl = `${process.env.BEYOND_BACKEND}/api/v1/streets?namespacedId=${streetNamespace}`
+      }
+
       const result = await fetch(apiUrl)
       const data = await result.json()
       console.log(url.host + ' response:', { data })
 
-      const { name } = data
+      const { name, phases } = data
+      setAvailablePhases(phases)
 
-      const {
-        environment,
-        leftBuildingHeight,
-        leftBuildingVariant,
-        location,
-        rightBuildingHeight,
-        rightBuildingVariant,
-        segments,
-        schemaVersion,
-        showAnalytics,
-        units,
-        width
-      } = data.data.street
-
-      const occupiedWidth = calculateOccupiedWidth(segments)
-      const remainingWidth = calculateRemainingWidth(width, occupiedWidth)
-
-      const newStreet = {
-        name: street.name || name,
-        namespacedId: street.namespacedId,
-        environment: environment || 'day',
-        remainingWidth,
-        occupiedWidth,
-        leftBuildingHeight,
-        leftBuildingVariant,
-        location,
-        rightBuildingHeight,
-        rightBuildingVariant,
-        schemaVersion,
-        segments,
-        showAnalytics,
-        units,
-        width
+      let toImport = []
+      if (phases && importPhases.length === 0) {
+        setImportPhases(phases)
+        return
+      } else if (phases && importPhases.length > 0) {
+        toImport = importPhases
       }
 
-      updateToLatestSchemaVersion(newStreet)
+      // TODO: DRY this up
+      if (!phases || toImport.length === 0) {
+        const {
+          environment,
+          leftBuildingHeight,
+          leftBuildingVariant,
+          location,
+          rightBuildingHeight,
+          rightBuildingVariant,
+          segments,
+          schemaVersion,
+          showAnalytics,
+          units,
+          width
+        } = data.data.street
 
-      const newPhase = {
-        id: uuidv4(),
-        name: name || `Imported Phase (${streetNamespace})`,
-        street: newStreet
-      }
+        const occupiedWidth = calculateOccupiedWidth(segments)
+        const remainingWidth = calculateRemainingWidth(width, occupiedWidth)
 
-      const cleanPhases = street.phases.map((phase) => ({
-        ...phase,
-        street: {
-          ...phase.street,
-          name: phase.street.name || name,
-          phases: null
+        const newStreet = {
+          name: street.name || name,
+          namespacedId: street.namespacedId,
+          environment: environment || 'day',
+          remainingWidth,
+          occupiedWidth,
+          leftBuildingHeight,
+          leftBuildingVariant,
+          location,
+          rightBuildingHeight,
+          rightBuildingVariant,
+          schemaVersion,
+          segments,
+          showAnalytics,
+          units,
+          width
         }
-      }))
 
-      const newPhases = [...cleanPhases, newPhase]
-      dispatch(updateStreetData({ ...newPhase.street, phases: newPhases }))
-      dispatch(setAppFlags({ activePhase: newPhase }))
+        updateToLatestSchemaVersion(newStreet)
+
+        const newPhase = {
+          id: uuidv4(),
+          name: name || `Imported Phase (${streetNamespace})`,
+          street: newStreet
+        }
+
+        const cleanPhases = street.phases.map((phase) => ({
+          ...phase,
+          street: {
+            ...phase.street,
+            name: phase.street.name || name,
+            phases: null
+          }
+        }))
+
+        const newPhases = [...cleanPhases, newPhase]
+        dispatch(updateStreetData({ ...newPhase.street, phases: newPhases }))
+        dispatch(setAppFlags({ activePhase: newPhase }))
+      } else if (toImport.length > 0) {
+        const streetPhases = [...street.phases]
+
+        for (const phase of toImport) {
+          const {
+            environment,
+            leftBuildingHeight,
+            leftBuildingVariant,
+            location,
+            rightBuildingHeight,
+            rightBuildingVariant,
+            segments,
+            schemaVersion,
+            showAnalytics,
+            units,
+            width
+          } = phase.street
+
+          const occupiedWidth = calculateOccupiedWidth(segments)
+          const remainingWidth = calculateRemainingWidth(width, occupiedWidth)
+
+          const newStreet = {
+            name: phase.street.name || name,
+            namespacedId: street.namespacedId,
+            environment: environment || 'day',
+            remainingWidth,
+            occupiedWidth,
+            leftBuildingHeight,
+            leftBuildingVariant,
+            location,
+            rightBuildingHeight,
+            rightBuildingVariant,
+            schemaVersion,
+            segments,
+            showAnalytics,
+            units,
+            width
+          }
+
+          updateToLatestSchemaVersion(newStreet)
+
+          const newPhase = {
+            id: uuidv4(),
+            name: phase.name || `Imported Phase (${streetNamespace})`,
+            street: newStreet
+          }
+
+          const cleanPhases = streetPhases.map((phase) => ({
+            ...phase,
+            street: {
+              ...phase.street,
+              name: phase.street.name || name,
+              phases: null
+            }
+          }))
+
+          streetPhases.push(newPhase)
+          const newPhases = [...cleanPhases, newPhase]
+          dispatch(updateStreetData({ ...newPhase.street, phases: newPhases }))
+          dispatch(setAppFlags({ activePhase: newPhase }))
+        }
+      }
+
       closeDialog()
     } catch (error) {
       console.error(error)
       window.alert('Error importing phase')
+    }
+  }
+
+  const updateImportPhases = (event) => {
+    const { value, checked } = event.target
+    const phase = availablePhases.find((phase) => phase?.id === value)
+
+    if (checked) {
+      setImportPhases([...importPhases, phase])
+    } else {
+      setImportPhases(importPhases.filter((phase) => phase.id !== value))
     }
   }
 
@@ -119,6 +215,27 @@ const PhaseImportDialog = (props) => {
                   placeholder="Paste Streetmix.net or StreetDesign.ai link"
                   {...register('link', { required: true })}
                 />
+
+                <div style={{ marginTop: '2rem' }}>
+                  {availablePhases.map((phase) => (
+                    <div key={phase.id} style={{ display: 'flex' }}>
+                      <input
+                        checked={importPhases.includes(phase)}
+                        type="checkbox"
+                        name="phase"
+                        id={`phase-${phase.id}`}
+                        value={phase.id}
+                        {...register('phase')}
+                        style={{ maxWidth: '20px' }}
+                        onChange={updateImportPhases}
+                      />
+
+                      <label htmlFor={`phase-${phase.id}`} style={{ flex: 1 }}>
+                        {phase.name}
+                      </label>
+                    </div>
+                  ))}
+                </div>
 
                 <Button primary={true} type="submit" style={{ width: '100%' }}>
                   <FormattedMessage

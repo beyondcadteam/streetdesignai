@@ -63,25 +63,24 @@ function Variants (props) {
 
   let variantSets = []
   let elevationToggle = false
-  if (segment) {
-    switch (type) {
-      case INFO_BUBBLE_TYPE_SEGMENT: {
-        const segmentInfo = getSegmentInfo(segment.type)
-        if (segmentInfo) {
-          variantSets = segmentInfo.variants
-        }
-        if (segmentInfo?.enableElevation) {
-          elevationToggle = true
-        }
-        break
+
+  switch (type) {
+    case INFO_BUBBLE_TYPE_SEGMENT: {
+      const segmentInfo = getSegmentInfo(segment.type)
+      if (segmentInfo) {
+        variantSets = segmentInfo.variants
       }
-      case INFO_BUBBLE_TYPE_LEFT_BUILDING:
-      case INFO_BUBBLE_TYPE_RIGHT_BUILDING:
-        variantSets = Object.keys(VARIANT_ICONS.building)
-        break
-      default:
-        break
+      if (segmentInfo?.enableElevation) {
+        elevationToggle = true
+      }
+      break
     }
+    case INFO_BUBBLE_TYPE_LEFT_BUILDING:
+    case INFO_BUBBLE_TYPE_RIGHT_BUILDING:
+      variantSets = Object.keys(VARIANT_ICONS.building)
+      break
+    default:
+      break
   }
 
   // Remove any empty entries

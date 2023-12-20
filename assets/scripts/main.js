@@ -46,7 +46,10 @@ if (
   window.location.hostname === 'www.streetmix.net' ||
   window.location.hostname === 'beyondware.com' ||
   window.location.hostname === 'www.beyondware.com' ||
-  window.location.hostname === 'streetdesign.beyondware.com'
+  window.location.hostname === 'streetdesign.beyondware.com' ||
+  window.location.hostname === 'beyondcad.com' ||
+  window.location.hostname === 'www.beyondcad.com' ||
+  window.location.hostname === 'streetdesign.beyondcad.com'
 ) {
   Sentry.init({
     dsn:
@@ -56,7 +59,11 @@ if (
       /streetmix\.net/,
       /www\.streetmix\.net/,
       /beyondware\.com/,
-      /www\.beyondware\.com/
+      /www\.beyondware\.com/,
+      /streetdesign\.beyondware\.com/,
+      /beyondcad\.com/,
+      /www\.beyondcad\.com/,
+      /streetdesign\.beyondcad\.com/
     ]
   })
 }

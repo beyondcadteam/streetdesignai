@@ -323,6 +323,9 @@ export function unpackServerStreetData (
   }
 
   if (checkIfNeedsToBeRemixed) {
+    // const ephemeralUserID = window.localStorage.getItem('ephemeral-user-id')
+    // if (!street.creatorId) street.creatorId = ephemeralUserID
+    // if (!isSignedIn() && street.creatorId !== (getSignInData().userId || ephemeralUserID)) {
     if (!isSignedIn() || street.creatorId !== getSignInData().userId) {
       setRemixOnFirstEdit(true)
     } else {

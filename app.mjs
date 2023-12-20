@@ -106,7 +106,8 @@ const csp = {
       "'self'",
       'streetmix.github.io',
       'checkout.stripe.com',
-      'beyondware.com'
+      'beyondware.com',
+      'beyondcad.com'
     ],
     frameAncestors: process.env.FRAME_ANCESTORS
       ? JSON.parse(process.env.FRAME_ANCESTORS)
@@ -130,6 +131,7 @@ const csp = {
       'localhost:*',
       'streetmix.net',
       'streetdesign.beyondware.com',
+      'streetdesign.beyondcad.com',
       process.env.PELIAS_HOST_NAME,
       'syndication.twitter.com',
       'sentry.io',

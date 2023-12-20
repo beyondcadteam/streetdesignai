@@ -54,6 +54,17 @@ function App () {
       parent.postMessage({ url: window.location.href }, '*')
     })
 
+    // Initialize street channel
+    window.streetChannel = new BroadcastChannel('street')
+    window.streetChannel.onmessage = (e) => {
+      console.log('Received message from street channel:', e)
+    }
+
+    const ephemeralUserID =
+      window.localStorage.getItem('ephemeral-user-id') || crypto.randomUUID()
+    window.localStorage.setItem('ephemeral-user-id', ephemeralUserID)
+    console.log({ ephemeralUserID })
+
     init()
 
     // Add hacky Automix training data labeling
