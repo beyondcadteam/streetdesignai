@@ -19,6 +19,7 @@ import ToastContainer from '../ui/Toasts/ToastContainer'
 // import SentimentSurveyContainer from '../sentiment/SentimentSurveyContainer'
 import { recalculateWidth } from '../streets/width'
 import { getInitialFlags } from '../store/slices/flags'
+import { fetchStreetForVerification } from '../streets/xhr'
 import DebugInfo from './DebugInfo'
 import BlockingShield from './BlockingShield'
 import BlockingError from './BlockingError'
@@ -49,21 +50,34 @@ function App () {
       setLoading(false)
     }
 
+    // Initialize parent window communication
     window.addEventListener('message', (e) => {
       if (e?.data !== 'get-url') return
       parent.postMessage({ url: window.location.href }, '*')
     })
 
     // Initialize street channel
+    window.streetChannelTabID = crypto.randomUUID()
     window.streetChannel = new BroadcastChannel('street')
+
     window.streetChannel.onmessage = (e) => {
-      console.log('Received message from street channel:', e)
+      if (e.data.type === 'UPDATE_STREET') {
+        if (e.data.tab === window.streetChannelTabID) return
+        console.log('Another tab has updated the street; fetching..')
+        setTimeout(fetchStreetForVerification, 1000) // TODO: Find a better way
+      }
     }
 
-    const ephemeralUserID =
-      window.localStorage.getItem('ephemeral-user-id') || crypto.randomUUID()
-    window.localStorage.setItem('ephemeral-user-id', ephemeralUserID)
-    console.log({ ephemeralUserID })
+    window.streetChannel.onmessageerror = (e) => {
+      console.error('BroadcastChannel Error', e)
+    }
+
+    window.addEventListener('stmx:save_street', (e) => {
+      window.streetChannel.postMessage({
+        type: 'UPDATE_STREET',
+        tab: window.streetChannelTabID
+      })
+    })
 
     init()
 

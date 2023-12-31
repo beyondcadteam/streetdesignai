@@ -182,8 +182,9 @@ const PhaseImportDialog = (props) => {
   }
 
   const updateImportPhases = (event) => {
+    if (!availablePhases) return
     const { value, checked } = event.target
-    const phase = availablePhases.find((phase) => phase?.id === value)
+    const phase = availablePhases?.find((phase) => phase?.id === value)
 
     if (checked) {
       setImportPhases([...importPhases, phase])
@@ -217,24 +218,28 @@ const PhaseImportDialog = (props) => {
                 />
 
                 <div style={{ marginTop: '2rem' }}>
-                  {availablePhases.map((phase) => (
-                    <div key={phase.id} style={{ display: 'flex' }}>
-                      <input
-                        checked={importPhases.includes(phase)}
-                        type="checkbox"
-                        name="phase"
-                        id={`phase-${phase.id}`}
-                        value={phase.id}
-                        {...register('phase')}
-                        style={{ maxWidth: '20px' }}
-                        onChange={updateImportPhases}
-                      />
+                  {availablePhases &&
+                    availablePhases.map((phase) => (
+                      <div key={phase.id} style={{ display: 'flex' }}>
+                        <input
+                          checked={importPhases.includes(phase)}
+                          type="checkbox"
+                          name="phase"
+                          id={`phase-${phase.id}`}
+                          value={phase.id}
+                          {...register('phase')}
+                          style={{ maxWidth: '20px' }}
+                          onChange={updateImportPhases}
+                        />
 
-                      <label htmlFor={`phase-${phase.id}`} style={{ flex: 1 }}>
-                        {phase.name}
-                      </label>
-                    </div>
-                  ))}
+                        <label
+                          htmlFor={`phase-${phase.id}`}
+                          style={{ flex: 1 }}
+                        >
+                          {phase.name}
+                        </label>
+                      </div>
+                    ))}
                 </div>
 
                 <Button primary={true} type="submit" style={{ width: '100%' }}>

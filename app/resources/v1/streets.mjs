@@ -490,10 +490,13 @@ export async function put (req, res) {
 
   async function updateStreetData (street) {
     street.name = body.name || street.name
-    street.data = body.data || street.data
+    // now we only update phases since the main street represents the current state
+    // street.data = body.data || street.data
     street.phases = body.phases || street.phases
     street.clientUpdatedAt =
       body.clientUpdatedAt || street.clientUpdatedAt || ''
+
+    if (!street.phases) street.data = body.data || street.data
 
     if (body.originalStreetId) {
       let origStreet

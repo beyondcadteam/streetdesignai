@@ -73,6 +73,7 @@ function StreetMeta (props) {
             street.phases.map((phase) => {
               return (
                 <div
+                  id={`phase-${phase.id.split('phase-')[1]}`}
                   key={phase.id}
                   className={
                     phase.id === app.activePhase?.id ? 'selected' : null
