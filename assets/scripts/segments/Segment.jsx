@@ -116,11 +116,7 @@ export class Segment extends React.Component {
 
     this.initialRender = false
 
-    if (
-      wasDragging &&
-      this.props.activeSegment === this.props.dataNo
-      // this.props.activeLayoutPhase.id === this.props.phase.id
-    ) {
+    if (wasDragging && this.props.activeSegment === this.props.dataNo) {
       infoBubble.considerShowing(
         false,
         this.streetSegment,

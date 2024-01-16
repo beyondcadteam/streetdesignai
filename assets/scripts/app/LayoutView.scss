@@ -21,7 +21,8 @@
   border-bottom-left-radius: 25px;
 }
 
-#layout-view-layouts-menu {
+#layout-view-layouts-menu,
+#layout-view-phases-menu {
   background-color: #fff;
   position: fixed;
   top: 150px;
@@ -51,6 +52,11 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+}
+
+#layout-view-phases-menu {
+  left: unset;
+  right: 25px;
 }
 
 #layout-view-add-phase-button {
