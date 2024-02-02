@@ -5,7 +5,9 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useIntl } from 'react-intl'
 import {
+  CopyIcon,
   LinkIcon,
+  PasteIcon,
   PencilIcon,
   PlusIcon,
   StackIcon,
@@ -25,6 +27,8 @@ import { showDialog } from '../store/slices/dialogs'
 import './PhasesMenu.scss'
 import AutoMix from '../../../app/lib/automix/automix.mjs'
 import { segmentsChanged } from '../segments/view'
+import { addToast } from '../store/slices/toasts'
+import { formatMessage } from '../locales/locale'
 import Menu from './Menu'
 
 function PhasesMenu (props) {
@@ -34,11 +38,6 @@ function PhasesMenu (props) {
   const app = useSelector((state) => state.app)
   const street = useSelector((state) => state.street)
   const [phases, setPhases] = useState()
-
-  useEffect(() => {
-    window.street = street
-    window.phase = app.activePhase
-  }, [app.activePhase, street])
 
   useEffect(() => {
     if (street?.phases?.length > 0) {
@@ -126,6 +125,8 @@ function PhasesMenu (props) {
     if (app.activePhase === index) {
       dispatch(setAppFlags({ activePhase: street.phases[index - 1] }))
     }
+
+    saveStreetToServer()
   }
 
   function moveDown (index) {
@@ -137,6 +138,8 @@ function PhasesMenu (props) {
     if (app.activePhase === index) {
       dispatch(setAppFlags({ activePhase: street.phases[index + 1] }))
     }
+
+    saveStreetToServer()
   }
 
   function addPhase () {
@@ -163,6 +166,7 @@ function PhasesMenu (props) {
 
     dispatch(updateStreetData({ phases: newItems }))
     dispatch(setAppFlags({ activePhase: newItems[newItems.length - 1] }))
+    saveStreetToServer()
   }
 
   function deletePhase (index) {
@@ -171,12 +175,30 @@ function PhasesMenu (props) {
     newItems.splice(index, 1)
     const newActivePhase = newItems[index - 1] || newItems[0]
 
+    if (street.layouts) {
+      const newLayouts = street.layouts.map((layout) => {
+        const newPhases = layout.phases.filter((phaseId) => phaseId !== item.id)
+        return { ...layout, phases: newPhases }
+      })
+
+      dispatch(updateStreetData({ layouts: newLayouts }))
+      if (app.layoutMode) {
+        const newActiveLayout = newLayouts.find(
+          (layout) => layout.id === app.activeLayout.id
+        )
+
+        dispatch(setAppFlags({ activeLayout: newActiveLayout }))
+      }
+    }
+
     if (app.activePhase.id === item.id) {
       dispatch(updateStreetData({ ...newActivePhase.street, phases: newItems }))
       dispatch(setAppFlags({ activePhase: newActivePhase }))
     } else {
       dispatch(updateStreetData({ phases: newItems }))
     }
+
+    saveStreetToServer()
   }
 
   function editPhase (index) {
@@ -200,9 +222,11 @@ function PhasesMenu (props) {
 
     const phase = clonedPhases[index]
     if (!phase) return
+    if (!phase.street.layouts) phase.street.layouts = street.layouts
 
     dispatch(setAppFlags({ activePhase: phase }))
     dispatch(updateStreetData({ ...phase.street, phases: clonedPhases }))
+    saveStreetToServer()
   }
 
   function importPhase () {
@@ -210,6 +234,41 @@ function PhasesMenu (props) {
     setTimeout(() => {
       document.querySelector('#phase-new-link').focus()
     }, 50)
+  }
+
+  function copyPhase (index) {
+    const phase = street.phases[index]
+    const data = {
+      id: phase.id + '-copy',
+      name: phase.name,
+      street: {
+        ...phase.street,
+        layouts: null
+      }
+    }
+
+    const clipboardContent = localStorage.getItem('clipboard')
+    const clipboard = clipboardContent ? JSON.parse(clipboardContent) : {}
+    if (!Array.isArray(clipboard.phases)) clipboard.phases = []
+
+    const phaseExists = clipboard.phases.find((p) => p.id === data.id)
+    if (!phaseExists) clipboard.phases.push(data)
+    localStorage.setItem('clipboard', JSON.stringify(clipboard))
+
+    dispatch(
+      addToast({
+        mode: 'success',
+        title: formatMessage('toast.phase-copied-title', 'Phase copied'),
+        message: formatMessage(
+          'toast.phase-copied-message',
+          'Phase copied to clipboard. You can paste it into another street.'
+        )
+      })
+    )
+  }
+
+  function pastePhase () {
+    dispatch(showDialog('PHASE_PASTE'))
   }
 
   async function createAutomix (type = 'variants') {
@@ -318,6 +377,24 @@ function PhasesMenu (props) {
 
         <span
           title={intl.formatMessage({
+            id: 'phases.pastePhase',
+            defaultMessage: 'Paste Phase'
+          })}
+          onClick={pastePhase}
+          style={{
+            display:
+              street?.phases?.length === Number(process.env.PHASE_LIMIT || '8')
+                ? 'none'
+                : 'inline',
+            cursor: 'pointer',
+            marginLeft: '1rem'
+          }}
+        >
+          <PasteIcon size={20} />
+        </span>
+
+        <span
+          title={intl.formatMessage({
             id: 'phases.createAutomix',
             defaultMessage: 'Create an AutoMix Phase'
           })}
@@ -387,6 +464,17 @@ function PhasesMenu (props) {
                 className="phases-menu-edit-item"
               >
                 <PencilIcon size={16} />
+              </span>
+
+              <span
+                title={intl.formatMessage({
+                  id: 'phases.copyPhase',
+                  defaultMessage: 'Copy Phase'
+                })}
+                onClick={() => copyPhase(index)}
+                className="phases-menu-copy-item"
+              >
+                <CopyIcon size={16} />
               </span>
 
               {index !== 0

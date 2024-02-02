@@ -33,6 +33,7 @@ import Loading from './Loading'
 
 function App () {
   const [isLoading, setLoading] = useState(true)
+  const street = useSelector((state) => state.street)
   const locale = useSelector((state) => state.locale)
   const dir = useSelector((state) => state.app.contentDirection)
   const layoutMode = useSelector((state) => state.app.layoutMode)
@@ -128,6 +129,11 @@ function App () {
       }
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Some global stuff for dev
+  useEffect(() => {
+    window.street = street
+  }, [street])
 
   // After loading, do ancient DOM stuff
   useEffect(() => {

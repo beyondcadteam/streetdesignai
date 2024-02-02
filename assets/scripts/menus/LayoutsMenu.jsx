@@ -190,6 +190,7 @@ function LayoutsMenu (props) {
     if (!layout) return
 
     dispatch(setAppFlags({ activeLayout: layout }))
+    if (!app.layoutMode) toggleLayoutMode()
   }
 
   function toggleLayoutMode () {

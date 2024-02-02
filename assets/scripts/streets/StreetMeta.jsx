@@ -4,7 +4,6 @@ import { useIntl } from 'react-intl'
 
 import { setAppFlags } from '../store/slices/app'
 import { updateStreetData } from '../store/slices/street'
-import { showDialog } from '../store/slices/dialogs'
 import Button from '../ui/Button'
 import StreetMetaWidthContainer from './StreetMetaWidthContainer'
 import StreetMetaAuthor from './StreetMetaAuthor'
@@ -24,20 +23,25 @@ function StreetMeta (props) {
   const app = useSelector((state) => state.app)
   const street = useSelector((state) => state.street)
 
-  const openLayoutDialog = () => {
-    dispatch(
-      setAppFlags({
-        dialogData: {
-          layout: app.activeLayout,
-          phases: street.phases?.map((phase) => ({
-            ...phase,
-            street: { ...phase.street, phases: null }
-          }))
-        }
-      })
-    )
+  const addNewLayout = () => {
+    const newLayout = {
+      id: street.id + `:layout-${Date.now().toString(36).slice(2)}`,
+      phases: street.phases.map((phase) => phase.id),
+      name:
+        street.name ||
+        intl.formatMessage({
+          id: 'street.default-name',
+          defaultMessage: 'Unnamed St'
+        }) + ` : Layout ${street.layouts.length + 1}`
+    }
 
-    dispatch(showDialog('LAYOUT_EDIT'))
+    const newStreet = {
+      ...street,
+      layouts: [...street.layouts, newLayout]
+    }
+
+    dispatch(updateStreetData(newStreet))
+    dispatch(setAppFlags({ activeLayout: newLayout }))
   }
 
   return (
@@ -48,11 +52,11 @@ function StreetMeta (props) {
             <Button
               secondary={true}
               id="layout-view-add-phase-button"
-              onClick={openLayoutDialog}
+              onClick={addNewLayout}
             >
               {intl.formatMessage({
-                id: 'phases.addPhases',
-                defaultMessage: 'Add Phases'
+                id: 'phases.addLayout',
+                defaultMessage: 'Add Layout'
               })}
             </Button>
             )
@@ -91,12 +95,14 @@ function StreetMeta (props) {
                     )
                     const clonedPhase = clonedPhases[index]
                     if (!clonedPhase) return
+                    if (!clonedPhase.street.layouts) { clonedPhase.street.layouts = street.layouts }
 
                     dispatch(setAppFlags({ activePhase: clonedPhase }))
                     dispatch(
                       updateStreetData({
                         ...phase.street,
-                        phases: clonedPhases
+                        phases: clonedPhases,
+                        layouts: street.layouts
                       })
                     )
                   }}

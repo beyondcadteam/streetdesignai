@@ -200,6 +200,7 @@ export class Segment extends React.Component {
   }
 
   handleSegmentMouseLeave = () => {
+    if (!getSegmentEl(this.props.dataNo)) return
     getSegmentEl(this.props.dataNo).classList.remove('hover')
     document.removeEventListener('keydown', this.handleKeyDown)
     infoBubble.dontConsiderShowing()

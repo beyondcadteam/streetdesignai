@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useIntl } from 'react-intl'
 
@@ -7,6 +7,7 @@ import { showDialog } from '../store/slices/dialogs'
 import { setAppFlags } from '../store/slices/app'
 import Button from '../ui/Button'
 import { updateStreetData } from '../store/slices/street'
+import { saveStreetToServer } from '../streets/xhr'
 import StreetView from './StreetView'
 import SkyContainer from './SkyContainer'
 
@@ -23,32 +24,6 @@ export default function LayoutView () {
   const [skyHeight, setSkyHeight] = useState(window.innerHeight)
   const [displayPhases, setDisplayPhases] = useState(layout.phases)
 
-  useEffect(() => {
-    if (view.current) setSkyHeight(view.current.scrollHeight)
-  }, [view])
-
-  useEffect(() => {
-    if (layout?.phases) setDisplayPhases(layout.phases)
-  }, [layout.phases])
-
-  useEffect(() => {
-    const displayPhasesEqual = displayPhases.every(
-      (p, i) => p === layout.phases[i]
-    )
-    if (displayPhasesEqual) return
-
-    const newLayout = { ...layout }
-    newLayout.phases = displayPhases.map((p) =>
-      street.phases.find((s) => s.id === p)
-    )
-    dispatch(
-      updateStreetData({
-        ...street,
-        layouts: street.layouts.map((l) => (l.id === layout.id ? newLayout : l))
-      })
-    )
-  }, [displayPhases]) // eslint-disable-line react-hooks/exhaustive-deps
-
   const switchLayout = (id) => {
     dispatch(
       setAppFlags({ activeLayout: street.layouts.find((l) => l.id === id) })
@@ -59,7 +34,7 @@ export default function LayoutView () {
     dispatch(setAppFlags({ layoutMode: false }))
   }
 
-  const openLayoutDialog = () => {
+  const openLayoutDialog = useCallback(() => {
     dispatch(
       setAppFlags({
         dialogData: {
@@ -73,17 +48,62 @@ export default function LayoutView () {
     )
 
     dispatch(showDialog('LAYOUT_EDIT'))
-  }
+  }, [app.activeLayout, dispatch, street.phases])
+
+  useEffect(() => {
+    if (view.current) setSkyHeight(view.current.scrollHeight)
+  }, [view])
+
+  useEffect(() => {
+    if (layout?.phases) setDisplayPhases(layout.phases)
+    if (layout?.phases?.length === 0) openLayoutDialog()
+  }, [layout.phases, street.phases, openLayoutDialog])
+
+  useEffect(() => {
+    const displayPhasesEqual = displayPhases.every(
+      (p, i) => p === layout.phases[i]
+    )
+    if (displayPhasesEqual) return
+
+    const newLayout = { ...layout }
+    newLayout.phases = displayPhases
+
+    // Update the layout order in each other phase
+    // TODO: Fix ugliness; Move layouts into the parent object; shouldn't be duped
+    const newStreet = {
+      ...street,
+      phases: street.phases.map((p) => {
+        return {
+          ...p,
+          street: {
+            ...p.street,
+            layouts: p.street.layouts.map((l) => {
+              if (l.id === layout.id) return newLayout
+              return l
+            })
+          }
+        }
+      })
+    }
+
+    dispatch(
+      updateStreetData({
+        ...newStreet,
+        layouts: street.layouts.map((l) => (l.id === layout.id ? newLayout : l))
+      })
+    )
+
+    dispatch(setAppFlags({ activeLayout: newLayout }))
+    saveStreetToServer()
+  }, [displayPhases]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="layout-view" ref={view}>
       {displayPhases.map((phase) => {
-        return (
-          <StreetView
-            key={phase}
-            phase={street.phases.find((p) => p.id === phase)}
-          />
-        )
+        const matchPhase = street.phases.find((p) => p.id === phase)
+        if (!matchPhase) return null
+
+        return <StreetView key={phase} phase={matchPhase} />
       })}
 
       <SkyContainer height={skyHeight} environment="day" />
@@ -128,6 +148,22 @@ export default function LayoutView () {
         </Button>
 
         <div id="layout-view-phases-menu-list" style={{ width: '100%' }}>
+          {displayPhases.length === 0 && (
+            <div
+              style={{
+                width: '100%',
+                textAlign: 'center',
+                marginTop: '1rem',
+                color: '#999'
+              }}
+            >
+              {intl.formatMessage({
+                id: 'layouts.noPhases',
+                defaultMessage: 'No phases'
+              })}
+            </div>
+          )}
+
           {displayPhases.map((p) => {
             return (
               <Button
@@ -176,7 +212,9 @@ export default function LayoutView () {
                   if (dropPhaseIndex === dragPhaseIndex) return
 
                   const newDisplayPhases = [...displayPhases]
-                  if (dragPhaseIndex >= 0) { newDisplayPhases.splice(dragPhaseIndex, 1) }
+                  if (dragPhaseIndex >= 0) {
+                    newDisplayPhases.splice(dragPhaseIndex, 1)
+                  }
                   newDisplayPhases.splice(
                     dropPhaseIndex,
                     0,
@@ -185,7 +223,7 @@ export default function LayoutView () {
                   setDisplayPhases(newDisplayPhases)
                 }}
               >
-                {street.phases.find((s) => s.id === p).name}
+                {street.phases.find((s) => s.id === p)?.name}
               </Button>
             )
           })}
