@@ -92,7 +92,7 @@ const PhasePasteDialog = (props) => {
               <h1>
                 <FormattedMessage
                   id="dialogs.phasePaste.heading"
-                  defaultMessage="Paste Phases from Clipboard"
+                  defaultMessage="Phase Clipboard"
                 />
               </h1>
             </header>
