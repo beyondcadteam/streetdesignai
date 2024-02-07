@@ -185,12 +185,14 @@ function MenuBar (props) {
           }
           target="_blank"
         /> */}
-        {/* TODO: Sharing is disabled for now */}
-        {/* <MenuBarItem
-          label="Share"
-          translation="menu.item.share"
+
+        <MenuBarItem
+          label={process.env.MENU_SHARE_LABEL || 'Share'}
+          translation={
+            process.env.MENU_SHARE_LABEL ? 'overridden' : 'menu.item.share'
+          }
           onClick={handleClickMenuButton('share')}
-        /> */}
+        />
         {enableLocaleSettings && (
           <MenuBarItem
             onClick={handleClickMenuButton('locale')}

@@ -8,11 +8,11 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { saveAs } from 'file-saver'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { ICON_LOCK } from '../ui/icons'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { ICON_LOCK } from '../ui/icons'
 import Button from '../ui/Button'
 import Checkbox from '../ui/Checkbox'
-import Tooltip from '../ui/Tooltip'
+// import Tooltip from '../ui/Tooltip'
 import Terms from '../app/Terms'
 import { getStreetImage } from '../streets/image'
 import { updateSettings } from '../store/slices/settings'
@@ -43,9 +43,12 @@ function SaveAsImageDialog (props) {
     (state) => state.settings.saveAsImageStreetName
   )
   // even if watermarks are off, override if user isn't subscribed
-  const watermark = useSelector(
-    (state) => state.settings.saveAsImageWatermark || !state.user.isSubscriber
-  )
+  // The above comment regards Streetmix, but we're doing away with that for now in SDAI
+  // const watermark = useSelector(
+  //   (state) => state.settings.saveAsImageWatermark || !state.user.isSubscriber
+  // )
+  const watermark = false
+
   const street = useSelector((state) => state.street)
   const name = useSelector((state) => state.street.name)
   const isSubscriber = useSelector((state) => state.user.isSubscriber)
@@ -234,7 +237,7 @@ function SaveAsImageDialog (props) {
               </Checkbox>
 
               {/* eslint-disable-next-line multiline-ternary -- Formatting conflicts with prettier */}
-              {isSubscriber ? (
+              {isSubscriber && watermark ? (
                 <Checkbox
                   onChange={handleChangeOptionWatermark}
                   checked={watermark}
@@ -245,31 +248,32 @@ function SaveAsImageDialog (props) {
                   />
                 </Checkbox>
               ) : (
-                <Tooltip
-                  label={intl.formatMessage({
-                    id: 'plus.locked.sub',
-                    // Default message ends with a Unicode-only left-right order mark
-                    // to allow for proper punctuation in `rtl` text direction
-                    // This character is hidden from editors by default!
-                    defaultMessage: 'Upgrade to Streetmix+ to use!‎'
-                  })}
-                >
-                  {/* div shim for Tooltip child element */}
-                  <div className="checkbox-item">
-                    <Checkbox
-                      onChange={handleChangeOptionWatermark}
-                      checked={watermark}
-                      disabled={!isSubscriber}
-                    >
-                      <FormattedMessage
-                        id="dialogs.save.option-watermark"
-                        defaultMessage="Watermark"
-                      />
-                      &nbsp;
-                      <FontAwesomeIcon icon={ICON_LOCK} />
-                    </Checkbox>
-                  </div>
-                </Tooltip>
+                <></>
+                // <Tooltip
+                //   label={intl.formatMessage({
+                //     id: 'plus.locked.sub',
+                //     // Default message ends with a Unicode-only left-right order mark
+                //     // to allow for proper punctuation in `rtl` text direction
+                //     // This character is hidden from editors by default!
+                //     defaultMessage: 'Upgrade to Streetmix+ to use!‎'
+                //   })}
+                // >
+                //   {/* div shim for Tooltip child element */}
+                //   <div className="checkbox-item">
+                //     <Checkbox
+                //       onChange={handleChangeOptionWatermark}
+                //       checked={watermark}
+                //       disabled={!isSubscriber}
+                //     >
+                //       <FormattedMessage
+                //         id="dialogs.save.option-watermark"
+                //         defaultMessage="Watermark"
+                //       />
+                //       &nbsp;
+                //       <FontAwesomeIcon icon={ICON_LOCK} />
+                //     </Checkbox>
+                //   </div>
+                // </Tooltip>
               )}
             </div>
             <div className="save-as-image-preview">

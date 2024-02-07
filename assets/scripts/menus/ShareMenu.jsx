@@ -220,7 +220,7 @@ function ShareMenu (props) {
 
   return (
     <Menu onShow={handleShow} className="share-menu" {...props}>
-      {!offline && (
+      {!offline && process.env.DISABLE_SHARING_FEATURES_LINK !== 'true' && (
         <>
           {signInPromo}
           <div className="share-via-link-container">
@@ -252,38 +252,44 @@ function ShareMenu (props) {
               </Button>
             </div>
           </div>
-          <a onClick={handleShareToMastodon}>
-            <Icon icon="mastodon" className="menu-item-icon" />
-            <FormattedMessage
-              id="menu.share.mastodon"
-              defaultMessage="Share using Mastodon"
-            />
-            <ExternalLinkIcon className="menu-item-external-link" />
-          </a>
-          <ExternalLink href={twitterLink}>
-            <Icon icon="twitter" className="menu-item-icon" />
-            <FormattedMessage
-              id="menu.share.twitter"
-              defaultMessage="Share using Twitter"
-            />
-            <ExternalLinkIcon className="menu-item-external-link" />
-          </ExternalLink>
-          <ExternalLink href={facebookLink}>
-            <Icon icon="facebook" className="menu-item-icon" />
-            <FormattedMessage
-              id="menu.share.facebook"
-              defaultMessage="Share using Facebook"
-            />
-            <ExternalLinkIcon className="menu-item-external-link" />
-          </ExternalLink>
-          <ExternalLink href={`https://3dstreet.app/#${window.location.href}`}>
-            <CubeIcon className="menu-item-icon-radix" />
-            <FormattedMessage
-              id="menu.share.3dstreet"
-              defaultMessage="Open in 3DStreet"
-            />
-            <ExternalLinkIcon className="menu-item-external-link" />
-          </ExternalLink>
+          {process.env.DISABLE_SHARING_FEATURES_SOCIAL !== 'true' && (
+            <>
+              <a onClick={handleShareToMastodon}>
+                <Icon icon="mastodon" className="menu-item-icon" />
+                <FormattedMessage
+                  id="menu.share.mastodon"
+                  defaultMessage="Share using Mastodon"
+                />
+                <ExternalLinkIcon className="menu-item-external-link" />
+              </a>
+              <ExternalLink href={twitterLink}>
+                <Icon icon="twitter" className="menu-item-icon" />
+                <FormattedMessage
+                  id="menu.share.twitter"
+                  defaultMessage="Share using Twitter"
+                />
+                <ExternalLinkIcon className="menu-item-external-link" />
+              </ExternalLink>
+              <ExternalLink href={facebookLink}>
+                <Icon icon="facebook" className="menu-item-icon" />
+                <FormattedMessage
+                  id="menu.share.facebook"
+                  defaultMessage="Share using Facebook"
+                />
+                <ExternalLinkIcon className="menu-item-external-link" />
+              </ExternalLink>
+              <ExternalLink
+                href={`https://3dstreet.app/#${window.location.href}`}
+              >
+                <CubeIcon className="menu-item-icon-radix" />
+                <FormattedMessage
+                  id="menu.share.3dstreet"
+                  defaultMessage="Open in 3DStreet"
+                />
+                <ExternalLinkIcon className="menu-item-external-link" />
+              </ExternalLink>
+            </>
+          )}
         </>
       )}
       <a onClick={handleClickPrint}>
