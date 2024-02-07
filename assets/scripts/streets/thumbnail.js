@@ -727,7 +727,7 @@ export function drawStreetThumbnail (
     transparentSky,
     segmentNamesAndWidths,
     streetName,
-    watermark = true
+    watermark = false
   }
 ) {
   // Calculations

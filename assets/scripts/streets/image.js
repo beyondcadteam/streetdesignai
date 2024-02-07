@@ -22,7 +22,7 @@ export function getStreetImage (
   segmentNamesAndWidths,
   streetName,
   dpi = SAVE_AS_IMAGE_DPI,
-  watermark = true
+  watermark = false
 ) {
   const width = TILE_SIZE * street.width + BUILDING_SPACE * 2
 
