@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 // import { useSelector, useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
-import { useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import { IoLanguage } from 'react-icons/io5'
-import { RowsIcon, StackIcon } from '@primer/octicons-react'
+import { MarkGithubIcon, RowsIcon, StackIcon } from '@primer/octicons-react'
 import AccessibleIcon from '../ui/AccessibleIcon'
 import { doSignIn } from '../users/authentication'
 // import { showDialog } from '../store/slices/dialogs'
@@ -203,6 +203,21 @@ function MenuBar (props) {
             </AccessibleIcon>
           </MenuBarItem>
         )}
+
+        <MenuBarItem
+          url={
+            process.env.GITHUB_URL || 'https://github.com/streetmix/streetmix'
+          }
+          target="_blank"
+        >
+          <MarkGithubIcon size={16} />
+          &nbsp;
+          <FormattedMessage
+            id="menu.item.open-source"
+            defaultMessage="Open Source"
+          />
+        </MenuBarItem>
+
         {!offline && renderUserAvatar(user, isSubscriber)}
       </ul>
       <EnvironmentBadge />

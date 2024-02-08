@@ -43,11 +43,9 @@ function SaveAsImageDialog (props) {
     (state) => state.settings.saveAsImageStreetName
   )
   // even if watermarks are off, override if user isn't subscribed
-  // The above comment regards Streetmix, but we're doing away with that for now in SDAI
-  // const watermark = useSelector(
-  //   (state) => state.settings.saveAsImageWatermark || !state.user.isSubscriber
-  // )
-  const watermark = false
+  const watermark = useSelector(
+    (state) => state.settings.saveAsImageWatermark || !state.user.isSubscriber
+  )
 
   const street = useSelector((state) => state.street)
   const name = useSelector((state) => state.street.name)
@@ -237,7 +235,7 @@ function SaveAsImageDialog (props) {
               </Checkbox>
 
               {/* eslint-disable-next-line multiline-ternary -- Formatting conflicts with prettier */}
-              {isSubscriber && watermark ? (
+              {isSubscriber ? (
                 <Checkbox
                   onChange={handleChangeOptionWatermark}
                   checked={watermark}
@@ -248,7 +246,7 @@ function SaveAsImageDialog (props) {
                   />
                 </Checkbox>
               ) : (
-                <></>
+                <>{/* Disabled in SDAI for now */}</>
                 // <Tooltip
                 //   label={intl.formatMessage({
                 //     id: 'plus.locked.sub',
