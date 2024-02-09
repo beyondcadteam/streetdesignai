@@ -5,9 +5,14 @@ import {
   setLastStreet,
   prepareDefaultStreet,
   prepareEmptyStreet,
-  setIgnoreStreetChanges
+  setIgnoreStreetChanges,
+  prepareAutomixStreet
 } from './data_model'
-import { NEW_STREET_DEFAULT, NEW_STREET_EMPTY } from './constants'
+import {
+  NEW_STREET_AUTOMIX,
+  NEW_STREET_DEFAULT,
+  NEW_STREET_EMPTY
+} from './constants'
 import { saveStreetToServer } from './xhr'
 
 export function makeDefaultStreet () {
@@ -30,6 +35,18 @@ export function onNewStreetDefaultClick () {
   )
 
   makeDefaultStreet()
+}
+
+export function onNewStreetAutomixClick () {
+  store.dispatch(
+    updateSettings({
+      newStreetPreference: NEW_STREET_AUTOMIX
+    })
+  )
+
+  makeDefaultStreet()
+  prepareAutomixStreet()
+  saveStreetToServer(false)
 }
 
 export function onNewStreetEmptyClick () {

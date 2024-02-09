@@ -30,6 +30,7 @@ export async function post (req, res) {
     street.name = body.name
     street.clientUpdatedAt = body.clientUpdatedAt
     street.data = body.data
+    street.phases = body.phases
     street.creatorIp = requestIp(req)
   }
 
@@ -489,9 +490,15 @@ export async function put (req, res) {
 
   async function updateStreetData (street) {
     street.name = body.name || street.name
-    street.data = body.data || street.data
+    // now we only update phases since the main street represents the current state
+    // street.data = body.data || street.data
+    street.phases = body.phases || street.phases
+    street.data.street.layouts =
+      body.data.street.layouts || street.data.street.layouts
     street.clientUpdatedAt =
       body.clientUpdatedAt || street.clientUpdatedAt || ''
+
+    if (!street.phases) street.data = body.data || street.data
 
     if (body.originalStreetId) {
       let origStreet
@@ -550,7 +557,7 @@ export async function put (req, res) {
   if (!street.creatorId) {
     updateStreetData(street)
       .then((street) => {
-        res.status(204).end()
+        res.status(204).json(street)
       })
       .catch(handleErrors)
   } else {

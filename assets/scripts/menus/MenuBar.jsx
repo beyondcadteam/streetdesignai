@@ -2,12 +2,20 @@ import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 // import { useSelector, useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
-import { useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import { IoLanguage } from 'react-icons/io5'
+import { MarkGithubIcon, RowsIcon, StackIcon } from '@primer/octicons-react'
 import AccessibleIcon from '../ui/AccessibleIcon'
 import { doSignIn } from '../users/authentication'
 // import { showDialog } from '../store/slices/dialogs'
-import logo from '../../images/logo_horizontal.svg'
+// import logo from '../../images/logo_horizontal.svg'
+import logo from '../../images/streetdesignailogo.png'
+import { URL_NEW_STREET } from '../app/constants'
+// import {
+//   URL_NEW_STREET,
+//   URL_NEW_STREET_COPY,
+//   URL_NEW_STREET_COPY_LAST
+// } from '../app/constants'
 import EnvironmentBadge from './EnvironmentBadge'
 import MenuBarItem from './MenuBarItem'
 import SignInButton from './SignInButton'
@@ -17,6 +25,7 @@ import './MenuBar.scss'
 
 function MenuBar (props) {
   const user = useSelector((state) => state.user.signInData?.details || null)
+  // const street = useSelector((state) => state.street || {})
   const isSubscriber = useSelector(
     (state) => state.user.signedIn && state.user.isSubscriber
   )
@@ -113,40 +122,75 @@ function MenuBar (props) {
     <nav className="menu-bar">
       <ul className="menu-bar-left" ref={menuBarLeftEl}>
         <li className="menu-bar-title">
-          <img src={logo} alt="Streemix" className="menu-bar-logo" />
-          <h1>Streetmix</h1>
+          <img src={logo} alt="StreetDesign.ai" className="menu-bar-logo" />
+          <h1>StreetDesign.ai</h1>
         </li>
-        <MenuBarItem
+        {/* <MenuBarItem
           label="Help"
           translation="menu.item.help"
           onClick={handleClickMenuButton('help')}
-        />
+        /> */}
         {!offline && (
           <>
-            <MenuBarItem
+            {/* <MenuBarItem
               label="Contact"
               translation="menu.item.contact"
               onClick={handleClickMenuButton('contact')}
-            />
-            <MenuBarItem
+            /> */}
+            {/* <MenuBarItem
               label="Store"
               translation="menu.item.store"
               url="https://cottonbureau.com/people/streetmix"
-            />
+            /> */}
             {!isSubscriber && <UpgradeButton onClick={handleClickUpgrade} />}
           </>
         )}
       </ul>
       <ul className="menu-bar-right" ref={menuBarRightEl}>
         <MenuBarItem
+          label="Phases"
+          translation="menu.item.phases"
+          onClick={handleClickMenuButton('phases')}
+        >
+          <span>
+            <StackIcon size={16} />
+            <span style={{ marginLeft: '5px' }}>Phases</span>
+          </span>
+        </MenuBarItem>
+        <MenuBarItem
+          label="Layouts"
+          translation="menu.item.layouts"
+          onClick={handleClickMenuButton('layouts')}
+        >
+          <span>
+            <RowsIcon size={16} />
+            <span style={{ marginLeft: '5px' }}>Layouts</span>
+          </span>
+        </MenuBarItem>
+        <MenuBarItem
           label="New street"
           translation="menu.item.new-street"
-          url="/new"
+          url={process.env.NEW_STREET_URL || URL_NEW_STREET || '/new'}
           target="_blank"
         />
+        {/* <MenuBarItem
+          label="Copy street"
+          translation="menu.item.copy-street"
+          url={
+            street?.namespacedId
+              ? `${process.env.COPY_STREET_URL || URL_NEW_STREET_COPY}/${
+                  street.namespacedId
+                }`
+              : process.env.COPY_LAST_URL || URL_NEW_STREET_COPY_LAST
+          }
+          target="_blank"
+        /> */}
+
         <MenuBarItem
-          label="Share"
-          translation="menu.item.share"
+          label={process.env.MENU_SHARE_LABEL || 'Share'}
+          translation={
+            process.env.MENU_SHARE_LABEL ? 'overridden' : 'menu.item.share'
+          }
           onClick={handleClickMenuButton('share')}
         />
         {enableLocaleSettings && (
@@ -159,6 +203,21 @@ function MenuBar (props) {
             </AccessibleIcon>
           </MenuBarItem>
         )}
+
+        <MenuBarItem
+          url={
+            process.env.GITHUB_URL || 'https://github.com/streetmix/streetmix'
+          }
+          target="_blank"
+        >
+          <MarkGithubIcon size={16} />
+          &nbsp;
+          <FormattedMessage
+            id="menu.item.open-source"
+            defaultMessage="Open Source"
+          />
+        </MenuBarItem>
+
         {!offline && renderUserAvatar(user, isSubscriber)}
       </ul>
       <EnvironmentBadge />

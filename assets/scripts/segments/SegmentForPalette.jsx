@@ -56,6 +56,7 @@ function SegmentForPalette ({
   let sublabel = null
 
   if (
+    process.env.UNLOCK_ALL_SEGMENTS !== 'true' &&
     unlockCondition &&
     !(segment.unlockWithFlag && flags[segment.unlockWithFlag]?.value === true)
   ) {

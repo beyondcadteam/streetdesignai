@@ -22,7 +22,7 @@ function FirstTimeExistingStreet (props) {
       <h1>
         <FormattedMessage
           id="dialogs.welcome.heading"
-          defaultMessage="Welcome to Streetmix."
+          defaultMessage="Welcome to Street Design AI."
         />
       </h1>
       {/* Enclose child elements in a paragraph-like <div> to get around

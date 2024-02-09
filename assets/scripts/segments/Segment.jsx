@@ -14,9 +14,11 @@ import {
   removeSegmentAction,
   clearSegmentsAction
 } from '../store/actions/street'
+import store from '../store'
+import { setAppFlags } from '../store/slices/app'
 import { addToast } from '../store/slices/toasts'
 import { getSegmentCapacity } from './capacity'
-import { getLocaleSegmentName } from './view'
+import { getLocaleSegmentName, getSegmentEl } from './view'
 import SegmentCanvas from './SegmentCanvas'
 import SegmentDragHandles from './SegmentDragHandles'
 import SegmentLabelContainer from './SegmentLabelContainer'
@@ -56,9 +58,11 @@ export class Segment extends React.Component {
     segmentPos: PropTypes.number,
     updateSegmentData: PropTypes.func,
     updatePerspective: PropTypes.func,
+    phase: PropTypes.object,
 
     // Provided by store
     locale: PropTypes.string,
+    layoutMode: PropTypes.bool,
     descriptionVisible: PropTypes.bool,
     activeSegment: PropTypes.number,
     capacitySource: PropTypes.string,
@@ -180,7 +184,12 @@ export class Segment extends React.Component {
       return
     }
 
-    this.props.setActiveSegment(this.props.dataNo)
+    if (!this.props.layoutMode) this.props.setActiveSegment(this.props.dataNo)
+    else {
+      store.dispatch(setAppFlags({ activeLayoutPhase: this.props.phase }))
+      const segment = getSegmentEl(this.props.dataNo)
+      segment.classList.add('hover', 'hover-layout')
+    }
 
     document.addEventListener('keydown', this.handleKeyDown)
     infoBubble.considerShowing(
@@ -191,6 +200,8 @@ export class Segment extends React.Component {
   }
 
   handleSegmentMouseLeave = () => {
+    if (!getSegmentEl(this.props.dataNo)) return
+    getSegmentEl(this.props.dataNo).classList.remove('hover')
     document.removeEventListener('keydown', this.handleKeyDown)
     infoBubble.dontConsiderShowing()
   }
@@ -336,6 +347,8 @@ export class Segment extends React.Component {
       classNames.push('hover', 'show-drag-handles')
     }
 
+    if (this.props.layoutMode) classNames.push('layout-segment')
+
     // Palette segments don't have `segment` defined
     if (segment && segment.warnings) {
       if (
@@ -358,6 +371,9 @@ export class Segment extends React.Component {
         ref={(ref) => {
           this.streetSegment = ref
         }}
+        onMouseDown={(e) => {
+          if (this.props.layoutMode) e.preventDefault()
+        }}
         onMouseEnter={this.handleSegmentMouseEnter}
         onMouseLeave={this.handleSegmentMouseLeave}
       >
@@ -369,7 +385,7 @@ export class Segment extends React.Component {
           capacity={average}
           showCapacity={enableAnalytics}
         />
-        <SegmentDragHandles width={elementWidth} />
+        {!this.props.layoutMode && <SegmentDragHandles width={elementWidth} />}
         <CSSTransition
           key="old-variant"
           in={!this.state.switchSegments}
@@ -399,6 +415,7 @@ function mapStateToProps (state) {
   return {
     enableAnalytics: state.flags.ANALYTICS.value && state.street.showAnalytics,
     locale: state.locale.locale,
+    layoutMode: state.app.layoutMode,
     descriptionVisible: state.infoBubble.descriptionVisible,
     activeSegment:
       typeof state.ui.activeSegment === 'number'

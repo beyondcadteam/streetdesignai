@@ -133,7 +133,7 @@ const streetSlice = createSlice({
           segment.type,
           segment.variantString
         )
-        if (segmentInfo.enableElevation !== true) {
+        if (!segmentInfo.enableElevation) {
           segment.elevation = variantInfo.elevation
         }
       },

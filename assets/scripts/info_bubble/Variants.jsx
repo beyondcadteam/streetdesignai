@@ -45,11 +45,16 @@ function Variants (props) {
       return state.street.segments[position].variantString
     }
   })
+
+  const unlocked = process.env.UNLOCK_ALL_VARIANTS === 'true'
   const segment = useSelector((state) => {
-    if (Number.isInteger(position) && state.street.segments[position]) {
-      return state.street.segments[position]
+    if (!state.app.layoutMode) {
+      if (Number.isInteger(position) && state.street.segments[position]) {
+        return state.street.segments[position]
+      }
     }
   })
+
   const flags = useSelector((state) => state.flags)
   const isSignedIn = useSelector((state) => state.user.signedIn)
   const isSubscriber = useSelector((state) => state.user.isSubscriber)
@@ -58,6 +63,7 @@ function Variants (props) {
 
   let variantSets = []
   let elevationToggle = false
+
   switch (type) {
     case INFO_BUBBLE_TYPE_SEGMENT: {
       const segmentInfo = getSegmentInfo(segment.type)
@@ -151,6 +157,7 @@ function Variants (props) {
     // is locked for a reason (e.g. must sign in, must be a subscriber)
     // If an "unlock flag" is set, enable the thing
     if (
+      !unlocked &&
       icon.unlockCondition &&
       !(icon.unlockWithFlag && flags[icon.unlockWithFlag]?.value === true)
     ) {
@@ -194,7 +201,7 @@ function Variants (props) {
         key={set + '.' + selection}
         title={title}
         className={isSelected ? 'variant-selected' : null}
-        disabled={isSelected || isLocked}
+        disabled={!unlocked && (isSelected || isLocked)}
         onClick={getButtonOnClickHandler(set, selection)}
       >
         <svg
@@ -206,7 +213,7 @@ function Variants (props) {
           {/* `xlinkHref` is preferred over `href` for compatibility with Safari */}
           <use xlinkHref={`#icon-${icon.id}`} />
         </svg>
-        {isLocked && <FontAwesomeIcon icon={ICON_LOCK} />}
+        {isLocked && !unlocked && <FontAwesomeIcon icon={ICON_LOCK} />}
       </Button>
     )
   }
@@ -246,6 +253,7 @@ function Variants (props) {
           // Street vendors always have enabled elevation controls
           // regardless of subscriber state
           const forceEnable =
+            unlocked ||
             segment.type === 'street-vendor' ||
             flags.ELEVATION_CONTROLS_UNLOCKED.value === true
 

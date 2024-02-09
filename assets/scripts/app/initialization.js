@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import { initSystemCapabilities } from '../preinit/system_capabilities'
 import { initializeFlagSubscribers } from '../app/flag_utils'
 import { initCoil } from '../integrations/coil'
@@ -10,15 +11,20 @@ import { initStreetDataChangedListener } from '../streets/street'
 import { initEnvironsChangedListener } from '../streets/environs'
 import { initDragTypeSubscriber } from '../segments/drag_and_drop'
 import { getPromoteStreet, remixStreet } from '../streets/remix'
-import { fetchLastStreet } from '../streets/xhr'
+import {
+  fetchLastStreet,
+  saveStreetToServer,
+  setStreetId
+} from '../streets/xhr'
 import { loadSignIn } from '../users/authentication'
 import { updateSettingsFromCountryCode } from '../users/localization'
 import { initSettingsStoreObserver } from '../users/settings'
 import store, { observeStore } from '../store'
 import { openGallery } from '../store/actions/gallery'
-import { everythingLoaded } from '../store/slices/app'
+import { everythingLoaded, setAppFlags } from '../store/slices/app'
 import { detectGeolocation } from '../store/slices/user'
-import { showDialog } from '../store/slices/dialogs'
+import { updateStreetData } from '../store/slices/street'
+// import { showDialog } from '../store/slices/dialogs'
 import { addEventListeners } from './event_listeners'
 import { getMode, MODES, processMode } from './mode'
 import { processUrl } from './page_url'
@@ -99,10 +105,9 @@ export function checkIfEverythingIsLoaded () {
   }
 }
 
-function onEverythingLoaded () {
-  if (getMode() === MODES.NEW_STREET_COPY_LAST) {
-    fetchLastStreet()
-  }
+async function onEverythingLoaded () {
+  const initMode = getMode()
+  if (initMode === MODES.NEW_STREET_COPY_LAST) fetchLastStreet()
 
   segmentsChanged()
 
@@ -138,9 +143,37 @@ function onEverythingLoaded () {
     )
   }
 
-  if (getPromoteStreet()) {
-    remixStreet()
+  if (getPromoteStreet() || mode === MODES.NEW_STREET_COPY) {
+    remixStreet((data) => {
+      setStreetId(data.id, data.namespacedId)
+
+      const streetData = {
+        ...data.data.street,
+        id: data.id,
+        namespacedId: data.namespacedId,
+        phases: data.phases.map((phase) => ({
+          ...phase,
+          id: uuidv4(),
+          namespacedId: data.namespacedId,
+          street: {
+            ...phase.street,
+            id: data.id,
+            namespacedId: data.namespacedId
+          }
+        }))
+      }
+
+      store.dispatch(updateStreetData(streetData))
+      store.dispatch(setAppFlags({ activePhase: streetData.phases[0] }))
+
+      // updateEditCount(1)
+      // segmentsChanged()
+      // setLastStreet()
+      saveStreetToServer(false)
+    })
   }
+
+  // store.dispatch(everythingLoaded())
 
   // Display "support Streetmix" dialog for returning users
   if (mode === MODES.EXISTING_STREET || mode === MODES.CONTINUE) {
@@ -185,7 +218,7 @@ function onEverythingLoaded () {
       (welcomeDismissed && canDisplayWhatsNew && locale === 'en') ||
       whatsNewFlag
     ) {
-      store.dispatch(showDialog('WHATS_NEW'))
+      // store.dispatch(showDialog('WHATS_NEW')) // Disabled for now
       window.localStorage[LSKEY_WHATSNEW_LAST_TIMESTAMP] = whatsNewTimestamp
     }
   }

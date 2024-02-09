@@ -81,9 +81,7 @@ export function initDragTypeSubscriber () {
 
 function handleSegmentResizeStart (event) {
   let x, y
-  if (app.readOnly) {
-    return
-  }
+  if (app.readOnly || app.layoutMode) return
 
   if (event.touches && event.touches[0]) {
     x = event.touches[0].pageX

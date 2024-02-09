@@ -694,6 +694,7 @@ export function editSegmentLabel (segment, position) {
  */
 export function getSegmentEl (position) {
   if (!position && position !== 0) return
+  if (!document.getElementById('street-section-editable')) return
 
   let segmentEl
   if (position === BUILDING_LEFT_POSITION) {
@@ -701,10 +702,18 @@ export function getSegmentEl (position) {
   } else if (position === BUILDING_RIGHT_POSITION) {
     segmentEl = document.querySelectorAll('.street-section-building')[1]
   } else {
-    const segments = document
-      .getElementById('street-section-editable')
-      .querySelectorAll('.segment')
+    const { layoutMode, activeLayoutPhase } = store.getState().app
+
+    const segments = layoutMode
+      ? document.querySelectorAll(
+          `.street-section-editable[data-phase="${activeLayoutPhase?.id}"] .segment`
+      )
+      : document
+        .getElementById('street-section-editable')
+        .querySelectorAll('.segment')
+
     segmentEl = segments[position]
   }
+
   return segmentEl
 }

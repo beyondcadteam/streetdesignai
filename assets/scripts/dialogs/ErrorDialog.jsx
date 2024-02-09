@@ -31,7 +31,7 @@ function ErrorDialog (props) {
                 values={{
                   // eslint-disable-next-line react/display-name
                   a: (chunks) => (
-                    <ExternalLink href="https://github.com/streetmix/streetmix/issues/new">
+                    <ExternalLink href="https://github.com/beyondcadteam/streetdesignai/issues/new">
                       {chunks}
                     </ExternalLink>
                   )

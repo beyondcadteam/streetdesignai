@@ -106,7 +106,7 @@ Finally, there is the problem variants. Each segment variant combines with other
 
 :::
 
-Segments are now defined as an assemblage of components, with additional properties, in [`segment-lookup.son`](https://github.com/streetmix/streetmix/blob/main/assets/scripts/segments/segment-lookup.json).
+Segments are now defined as an assemblage of components, with additional properties, in [`segment-lookup.json`](https://github.com/streetmix/streetmix/blob/main/assets/scripts/segments/segment-lookup.json).
 
 ### Additional segment properties
 

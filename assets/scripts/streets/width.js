@@ -41,7 +41,7 @@ export function normalizeStreetWidth (width, units) {
  * @param {Array} segments
  * @returns {Number} occupiedWidth
  */
-function calculateOccupiedWidth (segments = []) {
+export function calculateOccupiedWidth (segments = []) {
   return segments
     .map((segment) => segment.width)
     .reduce((occupiedWidth, width) => occupiedWidth + width, 0)
@@ -54,7 +54,7 @@ function calculateOccupiedWidth (segments = []) {
  * @param {Number} occupiedWidth
  * @returns {Number} remainingWidth
  */
-function calculateRemainingWidth (streetWidth, occupiedWidth) {
+export function calculateRemainingWidth (streetWidth, occupiedWidth) {
   let remainingWidth = streetWidth - occupiedWidth
 
   // Rounding problems :·(

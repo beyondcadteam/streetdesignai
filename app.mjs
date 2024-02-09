@@ -52,7 +52,9 @@ process.on('uncaughtException', function (error) {
 // Note: various sources tell us that this does not work on Windows
 process.on('SIGINT', function () {
   if (process.env.NODE_ENV === 'development') {
-    logger.info('[express] ' + chalk.yellowBright.bold('Stopping Streetmix!'))
+    logger.info(
+      '[express] ' + chalk.yellowBright.bold('Stopping Street Design AI!')
+    )
   }
   process.exit()
 })
@@ -67,7 +69,7 @@ app.locals.env = {
 // Not all headers from `helmet` are on by default. These turns on specific
 // off-by-default headers for better security as recommended by https://securityheaders.io/
 const helmetConfig = {
-  frameguard: false, // Allow Streetmix to be iframed in 3rd party sites
+  frameguard: false, // Allow Street Design AI to be iframed in 3rd party sites
   contentSecurityPolicy: false, // These are set explicitly later
   crossOriginEmbedderPolicy: false, // Load external assets
   hsts: {
@@ -100,7 +102,16 @@ const csp = {
     ],
     workerSrc: ["'self'"],
     childSrc: ['platform.twitter.com'],
-    frameSrc: ["'self'", 'streetmix.github.io', 'checkout.stripe.com'],
+    frameSrc: [
+      "'self'",
+      'streetmix.github.io',
+      'checkout.stripe.com',
+      'beyondware.com',
+      'beyondcad.com'
+    ],
+    frameAncestors: process.env.FRAME_ANCESTORS
+      ? JSON.parse(process.env.FRAME_ANCESTORS)
+      : ["'self'"],
     imgSrc: [
       "'self'",
       'data:',
@@ -117,6 +128,10 @@ const csp = {
     fontSrc: ["'self'", 'fonts.gstatic.com'],
     connectSrc: [
       "'self'",
+      'localhost:*',
+      'streetmix.net',
+      'streetdesign.beyondware.com',
+      'streetdesign.beyondcad.com',
       process.env.PELIAS_HOST_NAME,
       'syndication.twitter.com',
       'sentry.io',
@@ -145,7 +160,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(helmet(helmetConfig))
-app.use(express.json())
+app.use(express.json({ limit: process.env.JSON_SIZE_LIMIT || '10mb' }))
 app.use(compression())
 app.use(cookieParser())
 app.use(
@@ -175,7 +190,7 @@ app.use((req, res, next) => {
     height: 522
   }
 
-  res.locals.STREETMIX_TITLE = 'Streetmix'
+  res.locals.STREETMIX_TITLE = 'Street Design AI'
   res.locals.STREETMIX_URL = appURL.href
 
   next()
@@ -234,7 +249,7 @@ if (process.env.NODE_ENV === 'production') {
   const options = {
     definition: {
       info: {
-        title: 'Streetmix', // Title (required)
+        title: 'Street Design AI', // Title (required)
         version: '0.1.0' // Version (required)
       }
     },

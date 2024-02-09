@@ -14,9 +14,12 @@ const MAX_IMAGE_MULTIPLIER = 5
 
 function CustomScale ({ scale, baseDimensions = {}, onChange = () => {} }) {
   const units = useSelector((state) => state.settings.units)
-  const allowCustomScale = useSelector(
-    (state) => state.flags.SAVE_AS_IMAGE_CUSTOM_DPI.value
-  )
+
+  // This is currently overriden for SDAI
+  const allowCustomScale = true
+  // const allowCustomScale = useSelector(
+  //   (state) => state.flags.SAVE_AS_IMAGE_CUSTOM_DPI.value
+  // )
   const { width = 0, height = 0 } = baseDimensions
 
   function handleChangeScale ([value]) {

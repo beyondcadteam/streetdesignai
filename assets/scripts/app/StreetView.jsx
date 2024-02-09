@@ -33,11 +33,14 @@ class StreetView extends React.Component {
   static propTypes = {
     readOnly: PropTypes.bool,
     street: PropTypes.object.isRequired,
-    draggingType: PropTypes.number
+    draggingType: PropTypes.number,
+    layoutMode: PropTypes.bool,
+    phase: PropTypes.object
   }
 
   static defaultProps = {
-    readOnly: false
+    readOnly: false,
+    layoutMode: false
   }
 
   constructor (props) {
@@ -129,6 +132,7 @@ class StreetView extends React.Component {
   }
 
   updateScrollLeft = (deltaX) => {
+    if (this.props.layoutMode) return
     let scrollLeft = this.sectionEl.current.scrollLeft
 
     if (deltaX) {
@@ -144,11 +148,11 @@ class StreetView extends React.Component {
     this.sectionEl.current.scrollLeft = scrollLeft
   }
 
-  onResize = () => {
+  onResize = (heightOverride, widthOverride) => {
     if (!this.sectionInnerEl.current || !this.sectionCanvasEl.current) return
 
-    const viewportHeight = window.innerHeight
-    const viewportWidth = window.innerWidth
+    const viewportHeight = heightOverride ?? window.innerHeight
+    const viewportWidth = widthOverride ?? window.innerWidth
     let streetSectionTop
     const streetSectionHeight = this.sectionInnerEl.current.offsetHeight
 
@@ -167,9 +171,8 @@ class StreetView extends React.Component {
     // `skyHeight` is needed so that when gallery opens and the
     // street slides down, there is some more sky to show
     let skyHeight = streetSectionTop - 255
-    if (skyHeight < 0) {
-      skyHeight = 0
-    }
+    if (skyHeight < 0) skyHeight = 0
+
     // 605 is tweaked by adding 10 to 595px, the value of $canvas-baseline in CSS.
     // TODO: consolidate hardcoded numbers
     skyHeight += 605
@@ -326,48 +329,70 @@ class StreetView extends React.Component {
   }
 
   render () {
-    return (
-      <>
-        <section
-          id="street-section-outer"
-          onScroll={this.handleStreetScroll}
-          ref={this.sectionEl}
-        >
-          <section id="street-section-inner" ref={this.sectionInnerEl}>
-            <section id="street-section-canvas" ref={this.sectionCanvasEl}>
-              <Building
-                position="left"
-                buildingWidth={this.state.buildingWidth}
-                updatePerspective={this.updatePerspective}
+    return !this.props.layoutMode
+      ? (
+        <>
+          <section
+            id="street-section-outer"
+            onScroll={this.handleStreetScroll}
+            ref={this.sectionEl}
+          >
+            <section id="street-section-inner" ref={this.sectionInnerEl}>
+              <section id="street-section-canvas" ref={this.sectionCanvasEl}>
+                <Building
+                  position="left"
+                  buildingWidth={this.state.buildingWidth}
+                  updatePerspective={this.updatePerspective}
+                />
+                <Building
+                  position="right"
+                  buildingWidth={this.state.buildingWidth}
+                  updatePerspective={this.updatePerspective}
+                />
+                <StreetEditable
+                  resizeType={this.state.resizeType}
+                  setBuildingWidth={this.setBuildingWidth}
+                  updatePerspective={this.updatePerspective}
+                  draggingType={this.props.draggingType}
+                />
+                <ResizeGuides />
+                <EmptySegmentContainer />
+                <StreetViewDirt buildingWidth={this.state.buildingWidth} />
+              </section>
+              <ScrollIndicators
+                left={this.state.scrollIndicators.left}
+                right={this.state.scrollIndicators.right}
+                scrollStreet={this.scrollStreet}
               />
-              <Building
-                position="right"
-                buildingWidth={this.state.buildingWidth}
-                updatePerspective={this.updatePerspective}
-              />
-              <StreetEditable
-                resizeType={this.state.resizeType}
-                setBuildingWidth={this.setBuildingWidth}
-                updatePerspective={this.updatePerspective}
-                draggingType={this.props.draggingType}
-              />
-              <ResizeGuides />
-              <EmptySegmentContainer />
-              <StreetViewDirt buildingWidth={this.state.buildingWidth} />
             </section>
-            <ScrollIndicators
-              left={this.state.scrollIndicators.left}
-              right={this.state.scrollIndicators.right}
-              scrollStreet={this.scrollStreet}
-            />
           </section>
-        </section>
-        <SkyContainer
-          scrollPos={this.state.scrollPos}
-          height={this.state.skyHeight}
-        />
-      </>
-    )
+          <SkyContainer
+            scrollPos={this.state.scrollPos}
+            height={this.state.skyHeight}
+          />
+        </>
+        )
+      : (
+        <>
+          <section className="layout-section-outer" ref={this.sectionEl}>
+            <section className="layout-section-inner" ref={this.sectionInnerEl}>
+              <section
+                className="layout-section-canvas"
+                ref={this.sectionCanvasEl}
+              >
+                <StreetEditable
+                  phase={this.props.phase}
+                  resizeType={this.state.resizeType}
+                  setBuildingWidth={this.setBuildingWidth}
+                  updatePerspective={this.updatePerspective}
+                  draggingType={this.props.draggingType}
+                />
+                <EmptySegmentContainer />
+              </section>
+            </section>
+          </section>
+        </>
+        )
   }
 }
 
@@ -375,7 +400,8 @@ function mapStateToProps (state) {
   return {
     readOnly: state.app.readOnly,
     street: state.street,
-    draggingType: state.ui.draggingType
+    draggingType: state.ui.draggingType,
+    layoutMode: state.app.layoutMode
   }
 }
 

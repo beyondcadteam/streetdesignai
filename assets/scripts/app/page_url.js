@@ -38,7 +38,18 @@ export function processUrl () {
 
   // Continue where we left off… or start with a default (demo) street
   if (pathname === '/' || pathname === '') {
-    setMode(MODES.CONTINUE)
+    // setMode(MODES.CONTINUE)
+
+    const startMode = [
+      'CONTINUE',
+      'NEW_STREET',
+      'NEW_STREET_COPY_LAST'
+    ].includes(process.env.START_MODE)
+      ? process.env.START_MODE
+      : 'CONTINUE'
+
+    console.debug('Starting in mode:', startMode)
+    setMode(MODES[startMode])
 
     // New street
   } else if (pathname === URL_NEW_STREET) {
@@ -47,6 +58,10 @@ export function processUrl () {
     // New street (but start with copying last street)
   } else if (pathname === URL_NEW_STREET_COPY_LAST) {
     setMode(MODES.NEW_STREET_COPY_LAST)
+
+    // Copy an existing street
+  } else if (pathname.includes('copy/')) {
+    setMode(MODES.NEW_STREET_COPY)
 
     // Coming back from a successful sign in
   } else if (pathname === JUST_SIGNED_IN_PATH) {

@@ -1,8 +1,8 @@
 {
-  "name": "Streetmix",
+  "name": "Street Design AI",
   "scripts": {},
-  "repository": "https://github.com/streetmix/streetmix/",
-  "website": "https://streetmix.net/",
+  "repository": "https://github.com/beyondcadteam/streetdesignai/",
+  "website": "https://streetdesign.ai/",
   "stack": "heroku-20",
   "env": {
     "COOKIE_SESSION_SECRET": {

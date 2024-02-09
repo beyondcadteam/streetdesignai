@@ -5,7 +5,9 @@ import {
   DuplicateIcon,
   TrashIcon,
   ToolsIcon,
-  SunIcon
+  SunIcon,
+  ArrowUpIcon,
+  ArrowDownIcon
 } from '@primer/octicons-react'
 import {
   ICON_DISCORD,
@@ -59,6 +61,12 @@ function Icon ({ icon, className }) {
       return <ToolsIcon size={16} className={octiconClassNames(className)} />
     case 'sun':
       return <SunIcon size={16} className={octiconClassNames(className)} />
+    case 'up':
+      return <ArrowUpIcon size={16} className={octiconClassNames(className)} />
+    case 'down':
+      return (
+        <ArrowDownIcon size={16} className={octiconClassNames(className)} />
+      )
     default:
       // Ancient fallback (should no longer be used)
       return (

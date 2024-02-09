@@ -71,7 +71,7 @@ export default async function (req, res, next) {
     }
 
     const streetName = street.name || 'Unnamed Street'
-    const title = `${streetName} - Streetmix`
+    const title = `${streetName} - Street Design AI`
 
     res.locals.STREETMIX_TITLE = title
     res.locals.STREETMIX_URL += `${userId}/${namespacedId}/`

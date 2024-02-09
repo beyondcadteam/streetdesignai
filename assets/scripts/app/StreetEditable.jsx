@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { DropTarget } from 'react-dnd'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import { IoPodiumOutline } from 'react-icons/io5'
+import { FormattedMessage } from 'react-intl'
 import { flow } from '../util/flow'
 import Segment from '../segments/Segment'
 import {
@@ -18,6 +20,8 @@ import {
   makeSpaceBetweenSegments,
   isSegmentWithinCanvas
 } from '../segments/drag_and_drop'
+import { getStreetCapacity } from '../segments/capacity'
+import { formatNumber } from '../util/number_format'
 
 export class StreetEditable extends React.Component {
   static propTypes = {
@@ -26,10 +30,13 @@ export class StreetEditable extends React.Component {
     setBuildingWidth: PropTypes.func.isRequired,
     updatePerspective: PropTypes.func.isRequired,
     draggingType: PropTypes.number,
+    phase: PropTypes.object,
 
     // Provided by store
     street: PropTypes.object.isRequired,
     draggingState: PropTypes.object,
+    layoutMode: PropTypes.bool,
+    locale: PropTypes.string.isRequired,
 
     // Provided by DropTarget
     connectDropTarget: PropTypes.func
@@ -96,7 +103,9 @@ export class StreetEditable extends React.Component {
   }
 
   updateSegmentData = (ref, dataNo, segmentPos) => {
-    const { segments } = this.props.street
+    const { segments } = this.props.phase
+      ? this.props.phase.street
+      : this.props.street
     const segment = segments[dataNo]
 
     if (segment) {
@@ -114,10 +123,13 @@ export class StreetEditable extends React.Component {
   }
 
   calculateSegmentPos = (dataNo) => {
-    const { segments, remainingWidth } = this.props.street
+    const { segments, remainingWidth } = this.props.phase
+      ? this.props.phase.street
+      : this.props.street
     const { draggingState } = this.props
 
     let currPos = 0
+    // console.debug({ dataNo }, this.props.street)
 
     for (let i = 0; i < dataNo; i++) {
       const width =
@@ -127,6 +139,8 @@ export class StreetEditable extends React.Component {
       currPos += width
     }
 
+    // console.debug({ currPos })
+
     let mainLeft = remainingWidth
     if (draggingState && segments[draggingState.draggedSegment] !== undefined) {
       const draggedWidth = segments[draggingState.draggedSegment].width || 0
@@ -134,6 +148,8 @@ export class StreetEditable extends React.Component {
     }
 
     mainLeft = (mainLeft * TILE_SIZE) / 2
+    // console.debug({ mainLeft, remainingWidth })
+    // console.debug({ sum: mainLeft + currPos })
 
     if (draggingState && this.withinCanvas) {
       mainLeft -= DRAGGING_MOVE_HOLE_WIDTH
@@ -154,8 +170,12 @@ export class StreetEditable extends React.Component {
   }
 
   renderStreetSegments = () => {
-    const { segments, units, immediateRemoval } = this.props.street
+    const { segments, units, immediateRemoval } = this.props.phase
+      ? this.props.phase.street
+      : this.props.street
     const streetId = this.props.street.id
+
+    // console.debug('Rendering Segments', { streetId, segments })
 
     return segments.map((segment, i) => {
       const segmentPos = this.calculateSegmentPos(i)
@@ -177,6 +197,7 @@ export class StreetEditable extends React.Component {
             segmentPos={segmentPos}
             updateSegmentData={this.updateSegmentData}
             updatePerspective={this.props.updatePerspective}
+            phase={this.props.phase}
           />
         </CSSTransition>
       )
@@ -191,15 +212,38 @@ export class StreetEditable extends React.Component {
       width: this.props.street.width * TILE_SIZE + 'px'
     }
 
+    // TODO: Fix duplicate IDs by adapting the logic that uses the ID
     return connectDropTarget(
       <div
+        data-phase={this.props.phase ? this.props.phase.id : null}
         id="street-section-editable"
+        className="street-section-editable"
         key={this.props.street.id}
         style={style}
         ref={(ref) => {
           this.streetSectionEditable = ref
         }}
       >
+        {this.props.layoutMode && (
+          <>
+            <h1 className="street-section-layout-phase-name">
+              {this.props.phase.name}
+            </h1>
+            <div className="street-section-layout-phase-meta">
+              <IoPodiumOutline style={{ marginInline: '0.5rem' }} />
+              <FormattedMessage
+                id="capacity.ppl-per-hour"
+                defaultMessage="{capacity} people/hr"
+                values={{
+                  capacity: formatNumber(
+                    getStreetCapacity(this.props.phase.street).average,
+                    this.props.locale
+                  )
+                }}
+              />
+            </div>
+          </>
+        )}
         <TransitionGroup
           key={this.props.street.id}
           component={null}
@@ -216,7 +260,10 @@ export class StreetEditable extends React.Component {
 function mapStateToProps (state) {
   return {
     street: state.street,
-    draggingState: state.ui.draggingState
+    layoutMode: state.app.layoutMode,
+    activeLayout: state.app.activeLayout,
+    draggingState: state.ui.draggingState,
+    locale: state.locale.locale
   }
 }
 

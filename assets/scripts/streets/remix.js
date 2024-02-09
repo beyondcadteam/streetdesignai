@@ -1,4 +1,4 @@
-import { formatMessage } from '../locales/locale'
+// import { formatMessage } from '../locales/locale'
 import { app } from '../preinit/app_settings'
 import { getSignInData, isSignedIn } from '../users/authentication'
 import { newBlockingAjaxRequest } from '../util/fetch_blocking'
@@ -8,7 +8,7 @@ import {
   updateEditCount,
   saveOriginalStreetId
 } from '../store/slices/street'
-import { addToast } from '../store/slices/toasts'
+// import { addToast } from '../store/slices/toasts'
 import { setStreetCreatorId } from './data_model'
 import { getUndoStack, getUndoPosition, unifyUndoStack } from './undo_stack'
 import { saveStreetToServer, packServerStreetData, setStreetId } from './xhr'
@@ -36,7 +36,7 @@ export function setPromoteStreet (value) {
   promoteStreet = value
 }
 
-export function remixStreet () {
+export function remixStreet (callback) {
   let dontAddSuffix
   if (app.readOnly) {
     return
@@ -87,33 +87,34 @@ export function remixStreet () {
         'Content-Type': 'application/json'
       }
     },
-    receiveRemixedStreet
+    callback || receiveRemixedStreet
   )
 }
 
 function receiveRemixedStreet (data) {
   if (!promoteStreet) {
-    if (isSignedIn()) {
-      store.dispatch(
-        addToast({
-          message: formatMessage(
-            'toast.remixing',
-            'Now editing a freshly-made duplicate of the original street. The duplicate has been put in your gallery.'
-          )
-        })
-      )
-    } else {
-      store.dispatch(
-        addToast({
-          message: formatMessage(
-            'toast.remixing-sign-in',
-            'Now editing a freshly-made duplicate of the original street. Sign in to start your own gallery of streets.'
-          ),
-          component: 'TOAST_SIGN_IN',
-          duration: 12000
-        })
-      )
-    }
+    // TODO: Signin is disabled in this fork for now
+    // if (isSignedIn()) {
+    //   store.dispatch(
+    //     addToast({
+    //       message: formatMessage(
+    //         'toast.remixing',
+    //         'Now editing a freshly-made duplicate of the original street. The duplicate has been put in your gallery.'
+    //       )
+    //     })
+    //   )
+    // } else {
+    //   store.dispatch(
+    //     addToast({
+    //       message: formatMessage(
+    //         'toast.remixing-sign-in',
+    //         'Now editing a freshly-made duplicate of the original street. Sign in to start your own gallery of streets.'
+    //       ),
+    //       component: 'TOAST_SIGN_IN',
+    //       duration: 12000
+    //     })
+    //   )
+    // }
   }
 
   setStreetId(data.id, data.namespacedId)

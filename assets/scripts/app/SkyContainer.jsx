@@ -12,13 +12,14 @@ const FRONT_CLOUD_PARALLAX_SPEED = 0.5
 
 SkyContainer.propTypes = {
   scrollPos: PropTypes.number,
-  height: PropTypes.number.isRequired
+  height: PropTypes.number.isRequired,
+  environment: PropTypes.string
 }
 
 function SkyContainer (props) {
   const { scrollPos = 0, height } = props
   const environment = useSelector(
-    (state) => state.street.environment || DEFAULT_ENVIRONS
+    (state) => props.environment || state.street.environment || DEFAULT_ENVIRONS
   )
   const animations = useSelector(
     (state) => state.flags.ENVIRONMENT_ANIMATIONS?.value || false

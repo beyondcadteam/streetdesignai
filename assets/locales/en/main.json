@@ -2,7 +2,7 @@
   "menu": {
     "item": {
       "help": "Help",
-      "about": "About Streetmix…",
+      "about": "About Street Design AI…",
       "contact": "Contact",
       "community": "Community",
       "contribute": "Contribute",
@@ -14,7 +14,7 @@
       "share": "Share",
       "store": "Store",
       "upgrade": "Upgrade",
-      "streetmix-plus": "Get Streetmix+"
+      "streetmix-plus": "Get Street Design AI+"
     },
     "help": {
       "guidebook-link": "Guidebook",
@@ -39,19 +39,19 @@
       "save": "Save as image…",
       "save-byline": "For including in a report, blog, etc.",
       "messages": {
-        "my-street": "Check out my street, {streetName}, on Streetmix!",
-        "my-street-unnamed": "Check out my street on Streetmix!",
-        "someone-elses-street": "Check out {streetName} by {streetCreator} on Streetmix!",
-        "someone-elses-street-unnamed": "Check out this street by {streetCreator} on Streetmix!",
-        "anonymous-creator-street": "Check out {streetName} on Streetmix!",
-        "anonymous-creator-street-unnamed": "Check out this street on Streetmix!"
+        "my-street": "Check out my street, {streetName}, on Street Design AI!",
+        "my-street-unnamed": "Check out my street on Street Design AI!",
+        "someone-elses-street": "Check out {streetName} by {streetCreator} on Street Design AI!",
+        "someone-elses-street-unnamed": "Check out this street by {streetCreator} on Street Design AI!",
+        "anonymous-creator-street": "Check out {streetName} on Street Design AI!",
+        "anonymous-creator-street-unnamed": "Check out this street on Street Design AI!"
       }
     },
     "contact": {
       "forums": "Discuss on the forums",
-      "email": "Send an email to Streetmix team",
+      "email": "Send an email to Street Design AI team",
       "github": "View source code on GitHub",
-      "blog": "Visit Streetmix blog",
+      "blog": "Visit Street Design AI blog",
       "discord": "Join Discord chat",
       "slack": "Join Slack chat",
       "newsletter": "Subscribe to our newsletter"
@@ -62,7 +62,7 @@
     },
     "feedback": {
       "prompt": "Send us a message:",
-      "message-placeholder": "What do you think of Streetmix?",
+      "message-placeholder": "What do you think of Street Design AI?",
       "email-placeholder": "Your email (optional)",
       "send": "Send message",
       "confirm": "We got it. Thanks!",
@@ -89,7 +89,7 @@
       "username": "Username",
       "username-description": "Your username is a unique account identifier.",
       "display-name": "Display name",
-      "display-name-description": "Your display name is how you appear to other users in Streetmix.",
+      "display-name-description": "Your display name is how you appear to other users in Street Design AI.",
       "display-name-not-set": "You have not added a display name yet.",
       "display-name-error": "Display name could not be saved",
       "display-name-characters-remaining": "Characters remaining: {currentNum} ({maxNum} maximum)"
@@ -117,10 +117,10 @@
     "remixing": "Remixing…",
     "having-trouble": "Having trouble…",
     "no-street": "No street selected.",
-    "trouble-loading": "We’re having trouble loading Streetmix.",
-    "slow-connection-1": "Streetmix wasn’t able to connect to the Internet in awhile now.",
+    "trouble-loading": "We’re having trouble loading Street Design AI.",
+    "slow-connection-1": "Street Design AI wasn’t able to connect to the Internet in awhile now.",
     "slow-connection-2": "You might want to reload the page and try again. Please note you might lose the latest change to the street. Sorry!",
-    "no-connection": "Streetmix is having trouble connecting to the Internet.",
+    "no-connection": "Street Design AI is having trouble connecting to the Internet.",
     "more-info": "More info"
   },
   "error": {
@@ -128,7 +128,7 @@
       "home": "Go to the homepage",
       "sign-in": "Sign in again",
       "reload": "Reload the page",
-      "return": "Return to Streetmix",
+      "return": "Return to Street Design AI",
       "try-again": "Try again",
       "view-example": "View an example street"
     },
@@ -143,7 +143,7 @@
     "reload-sign-out-title": "You signed out in another window.",
     "gallery-street-failure-description": "We’re having trouble loading this street.",
     "reload-sign-in-title": "You signed in in another window.",
-    "please-reload": "Please reload this page to return to Streetmix.",
+    "please-reload": "Please reload this page to return to Street Design AI.",
     "survey-finished": "Survey complete. Congratulations and thank you!",
     "street-deleted-elsewhere-title": "This street has been deleted elsewhere.",
     "street-deleted-elsewhere-description": "This street has been deleted in another browser.",
@@ -155,11 +155,11 @@
     "auth-api-problem-description": "There was a problem with authentication.",
     "please-try-again": "Please try again later or let us know via <email_link>email</email_link> or <tweet_link>Twitter</tweet_link>.",
     "please-try-again-contact-us": "Please try again later. If you still need help, please <a>contact us</a>.",
-    "unsupported-browser-title": "Streetmix doesn’t work on your browser.",
+    "unsupported-browser-title": "Street Design AI doesn’t work on your browser.",
     "unsupported-browser-description": "Sorry about that. You might want to try <chrome_link>Chrome</chrome_link>, <firefox_link>Firefox</firefox_link>, <edge_link>Microsoft Edge</edge_link>, or Safari.",
     "unsupported-browser-internet-explorer": "Are you on Internet Explorer? <a>Find out more.</a>",
     "unsupported-browser-contact-us": "If you think your browser should be supported, please <a>contact us</a>.",
-    "cannot-create-new-street-on-phone-title": "Streetmix works on tablets and desktops only.",
+    "cannot-create-new-street-on-phone-title": "Street Design AI works on tablets and desktops only.",
     "cannot-create-new-street-on-phone-description": "If you follow another link to a specific street, you can view it on your phone – but you cannot yet create new streets.",
     "generic-error-title": "Something went wrong.",
     "generic-error-description": "We’re sorry – something went wrong.",
@@ -188,7 +188,7 @@
       "text": "Something unexpected happened 😢. We’ve logged the error, but if you can remember what happened on the way here, <a>please tell us about it</a>. This could also be a temporary problem, so please try one more time."
     },
     "welcome": {
-      "heading": "Welcome to Streetmix.",
+      "heading": "Welcome to Street Design AI.",
       "new": {
         "intro": "Design, remix, and share your neighborhood street. Add trees or bike paths, widen sidewalks or traffic lanes, learn how your decisions can impact your community.",
         "instruction": "Start by moving some segments around.",
@@ -207,15 +207,16 @@
       "heading": "Here’s your new street.",
       "default": "Start with an example street",
       "empty": "Start with an empty street",
-      "last": "Start with a copy of last street"
+      "last": "Start with a copy of last street",
+      "automix": "Start with a random AutoMix street"
     },
     "about": {
-      "heading": "About Streetmix.",
+      "heading": "About Street Design AI.",
       "description": "Design, remix, and share your street. Add bike paths, widen sidewalks or traffic lanes, learn how all of this can impact your community.",
       "team-heading": "Project team and maintainers",
       "partners": "Partners",
       "sponsors": "Sponsors",
-      "sponsored-by": "Streetmix is generously sponsored by:",
+      "sponsored-by": "Street Design AI is generously sponsored by:",
       "donate-link": "Support us financially",
       "tos-link": "Terms of service",
       "privacy-link": "Privacy policy",
@@ -247,7 +248,7 @@
       "option-custom-scale-description": "Download image up to 500% of original size.",
       "loading": "Loading…",
       "save-button": "Save to your computer…",
-      "license": "This Streetmix-created image may be reused anywhere, for any purpose, under the {licenseLink} license.",
+      "license": "This Street Design AI-created image may be reused anywhere, for any purpose, under the {licenseLink} license.",
       "error-preview": "There was an error displaying a preview image.",
       "error-unavailable": "Saving to image is not available on this browser.",
       "error-too-large": "This image is too big and we were not able to create it. Please try a smaller custom size.",
@@ -267,10 +268,10 @@
       "geotag-unavailable": "Geocoding services are currently unavailable. You can view the map, but you won’t be able to change this street’s location."
     },
     "donate": {
-      "heading": "Streetmix needs your help!",
-      "lede": "Streetmix is a community-supported project. Unlike other “free” services on the Internet, we do not show ads or inject trackers that abuse your privacy. Instead, we depend on your support to keep Streetmix up and running.",
-      "text": "Please consider supporting us with a one-time or recurring contribution. Your donation will pay for our servers and cloud infrastructure, supporting other non-profits, advocacy groups, and students working to improve our streets. Additional revenue will be invested into further development of new features. Our expenses are completely transparent, so you can see exactly how your contributions are used by the Streetmix team.",
-      "button": "Donate to Streetmix",
+      "heading": "Street Design AI needs your help!",
+      "lede": "Street Design AI is a community-supported project. Unlike other “free” services on the Internet, we do not show ads or inject trackers that abuse your privacy. Instead, we depend on your support to keep Street Design AI up and running.",
+      "text": "Please consider supporting us with a one-time or recurring contribution. Your donation will pay for our servers and cloud infrastructure, supporting other non-profits, advocacy groups, and students working to improve our streets. Additional revenue will be invested into further development of new features. Our expenses are completely transparent, so you can see exactly how your contributions are used by the Street Design AI team.",
+      "button": "Donate to Street Design AI",
       "cancel": "No thanks"
     },
     "sign-in": {
@@ -295,7 +296,7 @@
       "resend-email": "Resend email"
     },
     "whatsnew": {
-      "heading": "What’s new in Streetmix?",
+      "heading": "What’s new in Street Design AI?",
       "english-only": "This information is provided in English only."
     },
     "newsletter": {
@@ -327,7 +328,7 @@
     "all-segments-deleted": "All segments have been removed.",
     "no-undo": "Nothing to undo.",
     "no-redo": "Nothing to redo.",
-    "no-save": "No need to save by hand; Streetmix automatically saves your street!",
+    "no-save": "No need to save by hand; Street Design AI automatically saves your street!",
     "remixing": "Now editing a freshly-made duplicate of the original street. The duplicate has been put in your gallery.",
     "remixing-sign-in": "Now editing a freshly-made duplicate of the original street. Sign in to start your own gallery of streets.",
     "reloaded": "Your street was reloaded from the server as it was modified elsewhere."
@@ -421,7 +422,7 @@
     "byline": "by {user}",
     "roles": {
       "admin": "Admin",
-      "subscriber": "Streetmix+ member"
+      "subscriber": "Street Design AI+ member"
     }
   },
   "export": {
@@ -447,19 +448,19 @@
     "locked": {
       "label": "Locked",
       "soon": "Coming soon!",
-      "sub": "Upgrade to Streetmix+ to use!",
-      "sub-edit": "Upgrade to Streetmix+ to edit",
+      "sub": "Upgrade to Street Design AI+ to use!",
+      "sub-edit": "Upgrade to Street Design AI+ to edit",
       "user": "Sign-in to use!",
-      "action": "Get Streetmix+"
+      "action": "Get Street Design AI+"
     },
     "prompt": {
-      "text": "This feature is only available to Streetmix+ users.",
+      "text": "This feature is only available to Street Design AI+ users.",
       "action": "Upgrade to unlock"
     },
     "web-monetization": {
       "thanks": "Thanks for your support!",
-      "not-signed-in": "Your browser is sending Web Monetization payments. Sign in now to access your Streetmix+ benefits!",
-      "signed-in": "Your Web Monetization subscription gives you full access to Streetmix+ benefits.",
+      "not-signed-in": "Your browser is sending Web Monetization payments. Sign in now to access your Street Design AI+ benefits!",
+      "signed-in": "Your Web Monetization subscription gives you full access to Street Design AI+ benefits.",
       "learn-more": "Learn more"
     }
   },
@@ -483,7 +484,7 @@
     "about-header": "We want to understand how people feel about streets",
     "about-article": {
       "paragraph-1": "Many streets are designed by civil engineers, but we believe that design should include everyone’s point of view. In partnership with the <a>New Urban Mobility Alliance</a> (NUMO), we’re conducting this one-question survey to do just that.",
-      "paragraph-2": "We will analyze your responses so that we can infer which street characteristics will induce which feelings. In the future, we plan to incorporate these insights back into design recommendations for Streetmix users.",
+      "paragraph-2": "We will analyze your responses so that we can infer which street characteristics will induce which feelings. In the future, we plan to incorporate these insights back into design recommendations for Street Design AI users.",
       "paragraph-3": "You can only vote once per street, but you can encourage others to cast their own vote by sharing your streets or a random street with the link <a>https://streetmix.net/survey/</a>."
     },
     "done": {

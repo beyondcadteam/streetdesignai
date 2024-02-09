@@ -16,12 +16,15 @@ import Gallery from '../gallery/Gallery'
 import SegmentDragLayer from '../segments/SegmentDragLayer'
 import DebugHoverPolygon from '../info_bubble/DebugHoverPolygon'
 import ToastContainer from '../ui/Toasts/ToastContainer'
-import SentimentSurveyContainer from '../sentiment/SentimentSurveyContainer'
+// import SentimentSurveyContainer from '../sentiment/SentimentSurveyContainer'
+import { recalculateWidth } from '../streets/width'
 import { getInitialFlags } from '../store/slices/flags'
+import { fetchStreetForVerification } from '../streets/xhr'
 import DebugInfo from './DebugInfo'
 import BlockingShield from './BlockingShield'
 import BlockingError from './BlockingError'
 import StreetView from './StreetView'
+import LayoutView from './LayoutView'
 import PrintContainer from './PrintContainer'
 import WelcomePanel from './WelcomePanel'
 import NotificationBar from './NotificationBar'
@@ -30,8 +33,10 @@ import Loading from './Loading'
 
 function App () {
   const [isLoading, setLoading] = useState(true)
+  const street = useSelector((state) => state.street)
   const locale = useSelector((state) => state.locale)
   const dir = useSelector((state) => state.app.contentDirection)
+  const layoutMode = useSelector((state) => state.app.layoutMode)
   const everythingLoaded = useSelector((state) => state.app.everythingLoaded)
   const colorMode = useSelector((state) => state.settings.colorMode)
   const dispatch = useDispatch()
@@ -45,9 +50,90 @@ function App () {
       // Turn off loading after initial loading is done
       setLoading(false)
     }
+
+    // Initialize parent window communication
+    window.addEventListener('message', (e) => {
+      if (e?.data !== 'get-url') return
+      parent.postMessage({ url: window.location.href }, '*')
+    })
+
+    // Initialize street channel
+    window.streetChannelTabID = crypto.randomUUID()
+    window.streetChannel = new BroadcastChannel('street')
+
+    window.streetChannel.onmessage = (e) => {
+      if (e.data.type === 'UPDATE_STREET') {
+        if (e.data.tab === window.streetChannelTabID) return
+        console.log('Another tab has updated the street; fetching..')
+        setTimeout(fetchStreetForVerification, 1000) // TODO: Find a better way
+      }
+    }
+
+    window.streetChannel.onmessageerror = (e) => {
+      console.error('BroadcastChannel Error', e)
+    }
+
+    window.addEventListener('stmx:save_street', (e) => {
+      window.streetChannel.postMessage({
+        type: 'UPDATE_STREET',
+        tab: window.streetChannelTabID
+      })
+    })
+
     init()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+
+    // Add hacky Automix training data labeling
+    window.validateTrainingData = async () => {
+      const trainingServer = 'http://localhost:9292'
+
+      let page = 1
+      while (true) {
+        const response = await fetch(`${trainingServer}/unvalidated/1`)
+        const data = await response.json()
+        console.log({ page, data })
+        if (data?.length === 0) break
+
+        const streets = data
+          .map((street) => ({ ...street, ...recalculateWidth(street) }))
+          .map((street) => {
+            const valid = street.segments.every((segment) => {
+              return segment.warnings.every((warning) => !warning)
+            })
+
+            return {
+              ...street,
+              valid
+            }
+          })
+
+        console.group(`Page ${page}`)
+
+        console.log(
+          'Valid streets:',
+          streets.filter((street) => street.valid).length
+        )
+        console.log(
+          'Invalid streets:',
+          streets.filter((street) => !street.valid).length
+        )
+        await fetch(`${trainingServer}/`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ streets })
+        })
+
+        console.groupEnd()
+        page++
+      }
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Some global stuff for dev
+  useEffect(() => {
+    window.street = street
+  }, [street])
 
   // After loading, do ancient DOM stuff
   useEffect(() => {
@@ -91,12 +177,20 @@ function App () {
                 <InfoBubble />
                 <DebugHoverPolygon />
                 <WelcomePanel />
-                <PaletteContainer />
-                <EnvironmentEditor />
-                <SegmentDragLayer />
-                <StreetView />
+                {layoutMode
+                  ? (
+                    <LayoutView />
+                    )
+                  : (
+                    <>
+                      <PaletteContainer />
+                      <EnvironmentEditor />
+                      <SegmentDragLayer />
+                      <StreetView />
+                    </>
+                    )}
                 <ToastContainer />
-                <SentimentSurveyContainer />
+                {/* <SentimentSurveyContainer /> */}
               </div>
             </DndProvider>
           </IntlProvider>

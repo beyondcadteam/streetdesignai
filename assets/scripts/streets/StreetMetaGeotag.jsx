@@ -63,6 +63,8 @@ function StreetMetaGeotag (props) {
     defaultMessage: 'Change location'
   })
 
+  if (process.env.DISABLE_LOCATION_FEATURES === 'true') return null
+
   if (editable) {
     return (
       <Tooltip label={title} placement="bottom">

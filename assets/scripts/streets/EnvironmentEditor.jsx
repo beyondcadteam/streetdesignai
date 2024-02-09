@@ -13,6 +13,7 @@ import EnvironmentSelector from './EnvironmentSelector'
 import './EnvironmentEditor.scss'
 
 function EnvironmentEditor (props) {
+  const unlocked = process.env.UNLOCK_ALL_ENVIRONMENTS === 'true'
   const selected = useSelector(
     (state) => state.street.environment || DEFAULT_ENVIRONS
   )
@@ -64,13 +65,13 @@ function EnvironmentEditor (props) {
                   messages={locale.segmentInfo}
                 >
                   <EnvironmentSelector
-                    enabled={isSubscriber}
+                    enabled={unlocked || isSubscriber}
                     selected={selected}
                     handleSelect={handleSelect}
                   />
                 </IntlProvider>
 
-                {!isSubscriber && (
+                {!isSubscriber && !unlocked && (
                   <div className="environment-upgrade-box">
                     <StreetmixPlusPrompt>
                       <FormattedMessage

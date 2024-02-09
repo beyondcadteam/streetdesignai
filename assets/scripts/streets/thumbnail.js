@@ -632,15 +632,13 @@ function drawStreetNameplate (ctx, street, width, dpi) {
  * @modifies {CanvasRenderingContext2D}
  */
 function drawWatermark (ctx, dpi, invert = false) {
-  const text = formatMessage(
-    'export.watermark',
-    'Made with {streetmixWordmark}',
-    {
+  const text =
+    process.env.WATERMARK_TEXT ??
+    formatMessage('export.watermark', 'Made with {streetmixWordmark}', {
       // Replace the {placeholder} with itself. Later, this is used to
       // render the logo image in place of the text.
       streetmixWordmark: '{streetmixWordmark}'
-    }
-  )
+    })
   const wordmarkImage = invert
     ? images.get('/images/wordmark_white.svg')
     : images.get('/images/wordmark_black.svg')

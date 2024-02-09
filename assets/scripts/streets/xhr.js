@@ -4,7 +4,7 @@ import {
   checkIfEverythingIsLoaded,
   setServerContacted
 } from '../app/initialization'
-import { formatMessage } from '../locales/locale'
+// import { formatMessage } from '../locales/locale'
 import { MODES, processMode, getMode, setMode } from '../app/mode'
 import { goNewStreet } from '../app/routing'
 import { infoBubble } from '../info_bubble/info_bubble'
@@ -30,10 +30,10 @@ import {
   updateEditCount,
   updateStreetData
 } from '../store/slices/street'
-import { addToast } from '../store/slices/toasts'
+// import { addToast } from '../store/slices/toasts'
 import { resetUndoStack, replaceUndoStack } from '../store/slices/undo'
 import { makeDefaultStreet } from './creation'
-import { NEW_STREET_EMPTY } from './constants'
+import { NEW_STREET_AUTOMIX, NEW_STREET_EMPTY } from './constants'
 import {
   prepareEmptyStreet,
   prepareDefaultStreet,
@@ -43,7 +43,8 @@ import {
   setStreetCreatorId,
   setUpdateTimeToNow,
   setLastStreet,
-  setIgnoreStreetChanges
+  setIgnoreStreetChanges,
+  prepareAutomixStreet
 } from './data_model'
 import {
   getRemixOnFirstEdit,
@@ -74,6 +75,8 @@ export async function createNewStreetOnServer () {
 
   if (settings.newStreetPreference === NEW_STREET_EMPTY) {
     prepareEmptyStreet()
+  } else if (settings.newStreetPreference === NEW_STREET_AUTOMIX) {
+    prepareAutomixStreet()
   } else {
     prepareDefaultStreet()
   }
@@ -111,7 +114,7 @@ export async function fetchStreetFromServer () {
 }
 
 function errorReceiveStreet (error) {
-  const data = error.response.data
+  const data = error?.response?.data
   const mode = getMode()
   if (
     mode === MODES.CONTINUE ||
@@ -120,7 +123,7 @@ function errorReceiveStreet (error) {
   ) {
     goNewStreet()
   } else {
-    if (data.status === 404 || data.status === 410) {
+    if (data?.status === 404 || data?.status === 410) {
       if (store.getState().street.creatorId) {
         if (data.status === 410) {
           setMode(MODES.STREET_410_BUT_LINK_TO_USER)
@@ -173,7 +176,7 @@ export async function fetchStreetForVerification () {
     isblockingAjaxRequestInProgress() ||
     saveStreetIncomplete ||
     store.getState().errors.abortEverything ||
-    getRemixOnFirstEdit()
+    (getRemixOnFirstEdit() && process.env.REMIX_ON_FIRST_EDIT !== 'false')
   ) {
     return
   }
@@ -218,15 +221,17 @@ function receiveStreetForVerification (transmission) {
   const serverUpdatedAt = new Date(transmission.clientUpdatedAt)
 
   if (serverUpdatedAt && localUpdatedAt && serverUpdatedAt > localUpdatedAt) {
-    store.dispatch(
-      addToast({
-        method: 'warning',
-        message: formatMessage(
-          'toast.reloaded',
-          'Your street was reloaded from the server as it was modified elsewhere.'
-        )
-      })
-    )
+    // Since we now support basic multi-tab editing, disable this warning
+    // TODO: Maybe re-enable based on whether we're receiving because of channel updates
+    // store.dispatch(
+    //   addToast({
+    //     method: 'warning',
+    //     message: formatMessage(
+    //       'toast.reloaded',
+    //       'Your street was reloaded from the server as it was modified elsewhere.'
+    //     )
+    //   })
+    // )
 
     infoBubble.suppress()
 
@@ -264,13 +269,34 @@ function unpackStreetDataFromServerTransmission (transmission) {
     return
   }
 
-  const street = clone(transmission.data.street)
+  let street = clone(transmission.data.street)
   street.creatorId = (transmission.creator && transmission.creator.id) || null
   street.originalStreetId = transmission.originalStreetId || null
   street.updatedAt = transmission.updatedAt || null
   street.clientUpdatedAt = transmission.clientUpdatedAt || null
   street.name = transmission.name || null
   street.location = transmission.data.street.location || null
+  street.phases = transmission.phases
+
+  const activePhase = store.getState().app.activePhase
+  if (street.phases.length > 0) {
+    if (!activePhase) {
+      delete street.phases[0].street.phases
+      street = {
+        ...street,
+        ...street.phases[0].street
+      }
+    } else {
+      const index = street.phases.findIndex(
+        (phase) => phase.id === activePhase.id
+      )
+      delete street.phases[index].street.phases
+      street = {
+        ...street,
+        ...street.phases[index].street
+      }
+    }
+  }
 
   // FIXME just read it and do 0 otherwise
   if (typeof transmission.data.street.editCount === 'undefined') {
@@ -299,6 +325,41 @@ export function unpackServerStreetData (
     }
   }
 
+  const currentStreet = store.getState().street
+  const changedPhases = []
+
+  if (currentStreet.phases?.length > 0) {
+    for (let i = 0; i < currentStreet.phases.length; i++) {
+      const currentPhase = currentStreet.phases[i]
+      const newPhase = street.phases.find(
+        (phase) => phase.id === currentPhase.id
+      )
+      if (newPhase) {
+        const currentSegmentHash = currentPhase.street.segments
+          .map((segment) =>
+            [segment.type, segment.variantString, segment.width].join('!')
+          )
+          .join()
+
+        const newSegmentHash = newPhase.street.segments
+          .map((segment) =>
+            [segment.type, segment.variantString, segment.width].join('!')
+          )
+          .join()
+
+        if (currentSegmentHash !== newSegmentHash) {
+          changedPhases.push(currentPhase.id.split('phase-')[1])
+        }
+      }
+    }
+  }
+
+  for (const id of changedPhases) {
+    const phaseButton = document.querySelector(`#phase-${id}`)
+    phaseButton.classList.add('changed')
+    setTimeout(() => phaseButton.classList.remove('changed'), 500)
+  }
+
   store.dispatch(updateStreetData(street))
 
   if (transmission.data.undoStack) {
@@ -318,7 +379,7 @@ export function unpackServerStreetData (
     setStreetId(transmission.id, transmission.namespacedId)
   }
 
-  if (checkIfNeedsToBeRemixed) {
+  if (checkIfNeedsToBeRemixed && process.env.REMIX_ON_FIRST_EDIT !== 'true') {
     if (!isSignedIn() || street.creatorId !== getSignInData().userId) {
       setRemixOnFirstEdit(true)
     } else {
@@ -340,6 +401,7 @@ export function packServerStreetDataRaw () {
   delete data.street.originalStreetId
   delete data.street.updatedAt
   delete data.street.clientUpdatedAt
+  delete data.street.phases
 
   // This will be implied through authorization header
   delete data.street.creatorId
@@ -354,8 +416,14 @@ export function packServerStreetDataRaw () {
     name: street.name,
     originalStreetId: street.originalStreetId,
     data,
+    phases: street.phases?.map((phase) => ({
+      ...phase,
+      street: { ...phase.street, phases: null }
+    })),
     clientUpdatedAt: street.clientUpdatedAt
   }
+
+  // console.log({ transmission }, street.phases)
 
   return transmission
 }
@@ -390,7 +458,7 @@ export function scheduleSavingStreetToServer () {
 
   clearScheduledSavingStreetToServer()
 
-  if (getRemixOnFirstEdit()) {
+  if (getRemixOnFirstEdit() && process.env.REMIX_ON_FIRST_EDIT !== 'false') {
     remixStreet()
   } else {
     saveStreetTimerId = window.setTimeout(function () {
@@ -399,8 +467,8 @@ export function scheduleSavingStreetToServer () {
   }
 }
 
-export function fetchLastStreet () {
-  const streetId = store.getState().app.priorLastStreetId
+export function fetchLastStreet (streetId) {
+  streetId = streetId ?? store.getState().app.priorLastStreetId
 
   newBlockingAjaxRequest(
     'load',

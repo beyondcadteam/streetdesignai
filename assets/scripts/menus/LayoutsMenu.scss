@@ -1,0 +1,36 @@
+.layouts-menu {
+  min-width: 450px;
+  padding: 1rem;
+
+  h1 {
+    color: #121212;
+  }
+
+  .layouts-menu-item {
+    display: flex;
+    min-height: 2rem;
+
+    .layouts-menu-item-icons {
+      display: flex;
+      align-items: center;
+      justify-items: center;
+
+      .layouts-menu-move-item,
+      .layouts-menu-delete-item,
+      .layouts-menu-edit-item {
+        display: inline-block;
+        width: 16px;
+        margin-inline: 5px;
+        cursor: pointer;
+      }
+    }
+
+    .layouts-menu-item-text {
+      margin-left: 1rem;
+      padding: 0.5rem 0;
+      cursor: pointer;
+      flex-grow: 1;
+      text-align: right;
+    }
+  }
+}

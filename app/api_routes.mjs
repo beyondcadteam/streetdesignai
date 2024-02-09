@@ -177,6 +177,8 @@ const router = Router()
  *               $ref: '#/definitions/Segment'
  *           editCount:
  *             type: integer
+ *           layouts:
+ *             type: array
  *   NewStreetImage:
  *     $ref: '#/definitions/StreetImageData'
  *   NewStreet:
@@ -211,6 +213,8 @@ const router = Router()
  *         type: string
  *       data:
  *         $ref: '#/definitions/StreetData'
+ *       phases:
+ *        type: array
  *       createdAt:
  *         type: string
  *         format: date-time
@@ -746,7 +750,7 @@ router.put('/v1/streets/:street_id', jwtCheck, v1.streets.put)
  */
 router.post(
   '/v1/streets/:street_id/images',
-  bodyParser.text({ limit: '3mb' }),
+  bodyParser.text({ limit: process.env.STREET_IMAGE_SIZE_LIMIT || '3mb' }),
   jwtCheck,
   v1.streetImages.post
 )
